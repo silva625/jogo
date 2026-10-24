@@ -117,3 +117,33 @@ end
 if workspace.CurrentCamera then workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize) end
 resize()
 render()
+
+-- Hide overhead geometry locally when inside a house, keeping the roof in the world.
+local houses = workspace:WaitForChild("Neighborhood"):WaitForChild("Casas")
+local roofCache = {}
+local function cacheHouse(house)
+	local floor = house:FindFirstChild("Piso")
+	local roof = house:FindFirstChild("Telhado")
+	if not floor or not roof then return end
+	local parts = roof:GetChildren()
+	local porch = house:FindFirstChild("Cobertura varanda")
+	if porch then table.insert(parts, porch) end
+	roofCache[house] = { floor = floor, parts = parts }
+end
+for _, house in houses:GetChildren() do cacheHouse(house) end
+houses.ChildAdded:Connect(cacheHouse)
+houses.ChildRemoved:Connect(function(house) roofCache[house] = nil end)
+local elapsed = 0
+game:GetService("RunService").Heartbeat:Connect(function(dt)
+	elapsed += dt
+	if elapsed < 0.15 then return end
+	elapsed = 0
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	for _, entry in roofCache do
+		local pos = root and entry.floor.CFrame:PointToObjectSpace(root.Position)
+		local inside = pos and math.abs(pos.X) < 20 and math.abs(pos.Z) < 23 and pos.Y < 15
+		for _, roof in entry.parts do
+			if roof:IsA("BasePart") then roof.LocalTransparencyModifier = inside and 1 or 0 end
+		end
+	end
+end)
