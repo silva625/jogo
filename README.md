@@ -9,7 +9,9 @@ Protótipo de reforma de casas inspirado na referência enviada: HUD escuro com 
 3. O bairro já aparece no editor. Clique em **Play** para receber uma das oito casas e iniciar as missões.
 4. Aproxime-se dos objetos e segure **E**; no celular, use o botão de interação.
 5. Recolha os 8 lixos, pinte as 4 paredes e coloque as 3 decorações. A ferramenta muda automaticamente conforme a etapa.
-6. Use **B** ou o botão **Mochila** para ver as ferramentas. A barra inferior indica a ferramenta da etapa; não são Tools equipáveis nesta versão.
+6. Use **L / Loja** ou **B / Mochila** para abrir o catálogo. Compre um item, escolha uma das quatro cores e clique em **Escolher**. Depois da pintura, segure **E** em um dos três pontos rosa para colocar a decoração selecionada.
+7. Você recebe **3 plantas grátis**. O catálogo também tem luminária, tapete, mesa, poltrona e estante. A aba **minha mochila** filtra itens comprados ou instalados. As prévias 3D mostram o modelo e a cor escolhidos.
+8. Você pode trocar decorações mesmo depois de concluir a reforma. O item retirado volta à mochila; mudar sua cor não exige outra compra. Cada ponto dá XP apenas na primeira colocação. Os três pontos são fixos nesta versão.
 
 ## Desenvolvimento na nuvem
 
@@ -18,6 +20,7 @@ Use o checkout existente em `/workspace/jogo`. Não é necessário criar worktre
 ```bash
 cd /workspace/jogo
 /workspace/tools/luau/luau tests/mission.luau
+/workspace/tools/luau/luau tests/decorations.luau
 python3 tests/map.py
 python3 scripts/build_map.py # Regerar o cenário após alterar o gerador
 /workspace/tools/rojo/rojo build default.project.json -o /workspace/artifacts/DeCasaEmCasa.rbxlx
@@ -31,14 +34,14 @@ O mapa inclui rua, calçadas, praça, postes, árvores, colinas, cercas e jardin
 
 ## Validação
 
-Verificados na nuvem: compilação sintática dos quatro arquivos Luau, testes das regras e geração do arquivo de lugar com Script, LocalScript e ModuleScript.
+Verificados na nuvem: compilação sintática dos arquivos Luau, regras das missões, compras, saldo insuficiente, inventário, troca, cores, conclusão sem compras obrigatórias, proteção contra recompensa repetida e geração do arquivo de lugar.
 
-Pendente no Studio: executar Play e completar a reforma; testar reset do personagem, dois jogadores e o Device Emulator. O Studio não está disponível neste ambiente Linux, portanto o runtime Roblox e o visual não foram validados aqui.
+Pendente no Studio: executar Play e completar a reforma; abrir loja, comprar, escolher cor, colocar e trocar móveis antes/depois da conclusão; testar saldo insuficiente, reset do personagem, dois jogadores e o Device Emulator. O Studio não está disponível neste ambiente Linux, portanto o runtime Roblox e o visual não foram validados aqui.
 
 ## Limites desta primeira versão
 
-- Um bairro com oito casas e três etapas de reforma por jogador; sem demolição, loja ou minimapa. Configure o máximo de jogadores como **8** nas configurações do jogo no Roblox; o protótipo recusa jogadores adicionais quando todas as casas estiverem ocupadas.
-- Dinheiro e XP duram a sessão. Não há DataStore nem compras com Robux.
+- Um bairro com oito casas, loja e três etapas de reforma por jogador; sem demolição ou minimapa. Configure o máximo de jogadores como **8** nas configurações do jogo no Roblox; o protótipo recusa jogadores adicionais quando todas as casas estiverem ocupadas.
+- Dinheiro, XP, compras e decoração duram a sessão. Não há DataStore nem compras com Robux. A mochila comporta 30 unidades; os itens instalados ocupam os três pontos fixos da casa.
 - O telhado fica invisível apenas para o jogador que entra na casa. O cenário ainda usa peças simples e precisa de revisão visual no Studio.
 - Ao sair e entrar novamente, a missão começa de novo. “Continuar explorando” fecha a tela de conclusão.
 

@@ -1,9 +1,14 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Mission = require(ReplicatedStorage.Shared.Mission)
+local Decorations = require(ReplicatedStorage.Shared.Decorations)
+local Furniture = require(ReplicatedStorage.Shared.Furniture)
 local update = Instance.new("RemoteEvent")
 update.Name = "RenovationUpdate"
 update.Parent = ReplicatedStorage
+local shop = Instance.new("RemoteEvent")
+shop.Name = "DecorationShop"
+shop.Parent = ReplicatedStorage
 local sessions = {}
 local lots = workspace:WaitForChild("Neighborhood"):WaitForChild("Casas")
 local available = {}
@@ -14,16 +19,6 @@ for i = 1, 8 do
 	originals[i] = house:Clone()
 end
 
-local function part(parent, name, size, position, color, material)
-	local p = Instance.new("Part")
-	p.Name, p.Size, p.Position = name, size, position
-	p.Color = color
-	p.Material = material or Enum.Material.SmoothPlastic
-	p.Anchored = true
-	p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
-	p.Parent = parent
-	return p
-end
 local function send(player, message)
 	local session = sessions[player]
 	if not session then return end
@@ -33,8 +28,24 @@ local function send(player, message)
 	player:SetAttribute("Stage", s.stage)
 	player:SetAttribute("Progress", s.count)
 	player:SetAttribute("Completed", s.completed)
-	update:FireClient(player, message or "")
+	update:FireClient(player, message or "", session.decor)
 end
+shop.OnServerEvent:Connect(function(player, action, id, color)
+	local session = sessions[player]
+	if not session or type(action) ~= "string" then return end
+	local now = os.clock()
+	if now - (session.lastShop or 0) < .15 then return end
+	session.lastShop = now
+	local message = ""
+	if action == "Buy" and type(id) == "string" then
+		local _, result = Decorations.buy(session.state, session.decor, id)
+		message = result
+	elseif action == "Select" and type(id) == "string" and type(color) == "string" then
+		local _, result = Decorations.select(session.decor, id, color)
+		message = result
+	elseif action ~= "Sync" then return end
+	send(player, message)
+end)
 local function createHouse(player)
 	local slot, model
 	for i = 1, 8 do
@@ -48,21 +59,21 @@ local function createHouse(player)
 	model.Name = "Casa de " .. player.Name
 	local state = Mission.new()
 	local marker = model:FindFirstChild("SpawnMarker")
-	local session = { state = state, house = model, slot = slot, spawn = marker.Position, busy = false }
+	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
 	sessions[player] = session
 	local walls = {}
 	for i = 1, 4 do walls[i] = model:FindFirstChild("Paint" .. i) end
 	local prompts = {}
 	local function refresh()
 		for _, item in prompts do
-			item.prompt.Enabled = not state.completed and item.stage == state.stage and not state.used[item.id]
+			item.prompt.Enabled = if item.stage == 3 then state.stage >= 3 else not state.completed and item.stage == state.stage and not state.used[item.id]
 		end
 	end
-	local function interactive(target, stage, id, position, onDone)
+	local function interactive(target, stage, id, position, onDone, decorSlot)
 		local anchor = Instance.new("Attachment", target)
 		anchor.Position = position or Vector3.zero
 		local prompt = Instance.new("ProximityPrompt", anchor)
-		prompt.ActionText = Mission.stages[stage].action
+		prompt.ActionText = stage == 3 and "Colocar / trocar decoração" or Mission.stages[stage].action
 		prompt.ObjectText = Mission.stages[stage].title
 		prompt.HoldDuration = stage == 1 and 0.5 or 1.2
 		prompt.RequiresLineOfSight = false
@@ -74,6 +85,20 @@ local function createHouse(player)
 			local root = actor.Character and actor.Character:FindFirstChild("HumanoidRootPart")
 			if not root or (root.Position - anchor.WorldPosition).Magnitude > 12 then return end
 			session.busy = true
+			if decorSlot then
+				local ok, message = Decorations.place(state, session.decor, decorSlot)
+				if ok then
+					onDone()
+					local wasCompleted = state.completed
+					local rewarded = Mission.apply(state, stage, id)
+					if not wasCompleted and state.completed then message = "Casa reformada! +5.000 e +300 XP"
+					elseif rewarded then message ..= " +25 moedas · +20 XP" end
+					refresh()
+				end
+				send(player, message)
+				session.busy = false
+				return
+			end
 			if Mission.apply(state, stage, id) then
 				onDone()
 				refresh()
@@ -98,12 +123,15 @@ local function createHouse(player)
 	for i = 1, 3 do
 		local decoration = model:FindFirstChild("Decor" .. i)
 		interactive(decoration, 3, "decor" .. i, nil, function()
-			decoration.Transparency, decoration.CanCollide = 0, true
-			decoration.Material = Enum.Material.Wood
-			decoration.Color = Color3.fromRGB(150, 112, 84)
-			local leaves = part(model, "Folhagem", Vector3.new(3.6, 2.8, 3.6), decoration.Position + Vector3.new(0, 2.2, 0), Color3.fromRGB(71, 124, 83), Enum.Material.Grass)
-			leaves.Shape = Enum.PartType.Ball
-		end)
+			local existing = model:FindFirstChild("Furniture" .. i)
+			if existing then existing:Destroy() end
+			local chosen = session.decor.slots[i]
+			local floor = model.Piso
+			local base = CFrame.new(decoration.Position.X, floor.Position.Y + floor.Size.Y / 2 + .02, decoration.Position.Z) * floor.CFrame.Rotation
+			local furnishing = Furniture.create(chosen.id, chosen.color, base)
+			furnishing.Name, furnishing.Parent = "Furniture" .. i, model
+			decoration.Transparency = .88
+		end, i)
 	end
 	refresh()
 	send(player)

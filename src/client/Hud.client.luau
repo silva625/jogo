@@ -46,7 +46,7 @@ local slots = {}
 for i, name in {"Saco", "Rolo", "Decoração"} do
 	slots[i] = label(toolbar, i .. "  " .. name, UDim2.fromOffset(12 + (i - 1) * 102, 10), UDim2.fromOffset(96, 56))
 end
-local hint = label(gui, "Aproxime-se dos objetos e segure E\nNo celular, toque no botão de interação", UDim2.new(0.5, -170, 1, -152), UDim2.fromOffset(340, 58))
+local hint = label(gui, "Segure E para interagir · Loja [L] · Mochila [B]\nApós pintar, escolha sua decoração na loja", UDim2.new(0.5, -170, 1, -152), UDim2.fromOffset(340, 58))
 hint.TextXAlignment = Enum.TextXAlignment.Center
 local toast = panel("Notificação", UDim2.fromOffset(330, 54), UDim2.new(0.5, 0, 0, 20), Vector2.new(0.5, 0))
 toast.Visible = false
@@ -61,17 +61,18 @@ close.Text, close.Font, close.TextSize = "Continuar explorando", Enum.Font.Gotha
 close.BackgroundColor3, close.TextColor3 = pink, Color3.new(1, 1, 1)
 Instance.new("UICorner", close).CornerRadius = UDim.new(0, 12)
 close.Activated:Connect(function() complete.Visible = false end)
-local inventory = panel("Inventário", UDim2.fromOffset(320, 245), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
-inventory.Visible = false
-label(inventory, "INVENTÁRIO", UDim2.fromOffset(20, 12), UDim2.fromOffset(280, 36), pink)
-local tools = label(inventory, "", UDim2.fromOffset(20, 55), UDim2.fromOffset(280, 125))
+local function toggleDecorations()
+	local shopGui = player.PlayerGui:FindFirstChild("DecorShop")
+	local window = shopGui and shopGui:FindFirstChild("Window")
+	if window then window.Visible = not window.Visible end
+end
 local bag = Instance.new("TextButton", gui)
 bag.Size, bag.Position = UDim2.fromOffset(140, 38), UDim2.new(1, -158, 1, -62)
 bag.Text, bag.BackgroundColor3, bag.TextColor3 = "Mochila [B]", Color3.fromRGB(35, 31, 46), Color3.new(1, 1, 1)
 Instance.new("UICorner", bag).CornerRadius = UDim.new(0, 10)
-bag.Activated:Connect(function() inventory.Visible = not inventory.Visible end)
+bag.Activated:Connect(toggleDecorations)
 UserInputService.InputBegan:Connect(function(input, processed)
-	if not processed and input.KeyCode == Enum.KeyCode.B then inventory.Visible = not inventory.Visible end
+	if not processed and input.KeyCode == Enum.KeyCode.B then toggleDecorations() end
 end)
 local shownCompletion = false
 local function render()
@@ -86,7 +87,7 @@ local function render()
 		rows[i].TextColor3 = i < stage and Color3.fromRGB(78, 225, 158) or Color3.fromRGB(243, 241, 247)
 		slots[i].TextColor3 = i == stage and pink or Color3.fromRGB(148, 143, 157)
 	end
-	tools.Text = "Ferramentas da reforma:\n\nSaco de lixo · Rolo de pintura · Decoração\n\nAtiva: " .. (Mission.stages[stage] and Mission.stages[stage].tool or "Reforma concluída")
+
 	if player:GetAttribute("Completed") and not shownCompletion then
 		shownCompletion = true
 		complete.Visible = true
