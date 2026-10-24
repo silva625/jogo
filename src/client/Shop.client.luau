@@ -5,6 +5,14 @@ local player = Players.LocalPlayer
 local shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(shared:WaitForChild("Catalog"))
 local Furniture = require(shared:WaitForChild("Furniture"))
+local ShopRules = require(shared:WaitForChild("ShopRules"))
+local shopFloor = workspace:WaitForChild("Neighborhood"):WaitForChild("Loja"):WaitForChild("Piso")
+local function atStore()
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return false end
+	local position = shopFloor.CFrame:PointToObjectSpace(root.Position)
+	return ShopRules.inside(position.X, position.Y, position.Z)
+end
 local remote = ReplicatedStorage:WaitForChild("DecorationShop")
 local update = ReplicatedStorage:WaitForChild("RenovationUpdate")
 local pink = Color3.fromRGB(241, 103, 205)
@@ -35,10 +43,10 @@ local function button(parent, value, x, y, w, h, callback)
 	b.Activated:Connect(callback)
 	return b
 end
-text(window, "LOJA & DECORAÇÃO", 22, 12, 420, 34, 23, pink)
+text(window, "CASA & CIA", 22, 12, 420, 34, 23, pink)
 local balance = text(window, "", 460, 14, 172, 30, 17, Color3.fromRGB(80, 224, 162))
 button(window, "X", 648, 14, 32, 32, function() window.Visible = false end)
-local feedback = text(window, "Escolha seu estilo. Compre, selecione e coloque nos pontos rosa da casa.", 22, 49, 655, 32)
+local feedback = text(window, "Compras na loja física, no fim da rua. Escolha itens da mochila em qualquer lugar.", 22, 49, 655, 32)
 local mode = button(window, "Ver: catálogo", 22, 87, 158, 30, function() end)
 local chosen = text(window, "", 192, 86, 480, 32, 13, pink)
 text(window, "Cor:", 22, 125, 48, 30)
@@ -54,7 +62,7 @@ for i, color in Catalog.colors do
 	colorButtons[color.id] = b
 end
 local filters = {}
-for i, name in {"Todos", "Móveis", "Plantas", "Luzes", "Tapetes", "Surreais"} do
+for i, name in {"Todos", "Móveis", "Plantas", "Luzes", "Tapetes", "Decoração"} do
 	filters[name] = button(window, name, 22 + (i - 1) * 109, 166, 102, 28, function()
 		category = name
 		render()
@@ -85,6 +93,7 @@ local function preview(parent, id)
 	viewport.CurrentCamera = camera
 end
 render = function()
+	local inside = atStore()
 	balance.Text = "$ " .. (player:GetAttribute("Cash") or 250)
 	local selection = Catalog.find(snapshot.selected)
 	chosen.Text = "Ativo: " .. (selection and selection.name or "Planta") .. " · " .. (Catalog.color(snapshot.color) or Catalog.colors[1]).name
@@ -107,18 +116,40 @@ render = function()
 		text(card, item.name, 104, 8, 208, 31, 14)
 		text(card, item.category .. " · $ " .. item.price, 104, 39, 208, 20, 13, pink)
 		text(card, "Mochila: " .. count .. " · Na casa: " .. placed, 104, 62, 208, 20, 12)
-		local buy = button(card, "Comprar", 104, 89, 96, 28, function() remote:FireServer("Buy", item.id) end)
-		buy.BackgroundColor3 = (player:GetAttribute("Cash") or 0) >= item.price and Color3.fromRGB(49, 104, 86) or Color3.fromRGB(63, 62, 69)
+		local buy = button(card, inside and "Comprar" or "Ir à loja", 104, 89, 96, 28, function()
+			if atStore() then remote:FireServer("Buy", item.id)
+			else feedback.Text = "Siga a rua até a Casa & Cia. Entre pela vitrine e vá ao balcão para comprar." end
+		end)
+		buy.BackgroundColor3 = inside and (player:GetAttribute("Cash") or 0) >= item.price and Color3.fromRGB(49, 104, 86) or Color3.fromRGB(63, 62, 69)
 		local selectButton = button(card, "Escolher", 208, 89, 103, 28, function() remote:FireServer("Select", item.id, colorId) end)
 		selectButton.BackgroundColor3 = snapshot.selected == item.id and Color3.fromRGB(137, 61, 124) or Color3.fromRGB(51, 44, 65)
 	end
 	footer.Text = visible == 0 and "Nenhum item neste filtro. Abra o catálogo ou escolha outra categoria." or "3 plantas de presente! Após limpar e pintar, segure E nos pontos rosa.\nTrocas devolvem o móvel anterior à mochila. Itens e moedas duram esta sessão."
 end
 mode.Activated:Connect(function() ownedOnly = not ownedOnly; render() end)
-local open = button(gui, "Loja [L]", 0, 0, 140, 38, function() window.Visible = not window.Visible end)
+window:GetAttributeChangedSignal("InventoryMode"):Connect(function()
+	ownedOnly = window:GetAttribute("InventoryMode") == true
+	render()
+end)
+local function openCatalog()
+	window:SetAttribute("InventoryMode", false)
+	ownedOnly = false
+	window.Visible = not window.Visible
+	render()
+end
+local open = button(gui, "Casa & Cia [L]", 0, 0, 140, 38, openCatalog)
 open.Position = UDim2.new(1, -158, 0, 128)
 UserInputService.InputBegan:Connect(function(input, processed)
-	if not processed and input.KeyCode == Enum.KeyCode.L then window.Visible = not window.Visible end
+	if not processed and input.KeyCode == Enum.KeyCode.L then openCatalog() end
+end)
+remote.OnClientEvent:Connect(function(action)
+	if action == "Open" then
+		ownedOnly = false
+		window:SetAttribute("InventoryMode", false)
+		window.Visible = true
+		feedback.Text = "Bem-vindo à Casa & Cia! Escolha o móvel e sua cor."
+		render()
+	end
 end)
 update.OnClientEvent:Connect(function(message, decor)
 	if decor then snapshot = decor; render() end
@@ -134,3 +165,11 @@ if workspace.CurrentCamera then workspace.CurrentCamera:GetPropertyChangedSignal
 resize()
 render()
 remote:FireServer("Sync")
+local lastInside = atStore()
+task.spawn(function()
+	while gui.Parent do
+		task.wait(.5)
+		local inside = atStore()
+		if inside ~= lastInside then lastInside = inside; if window.Visible then render() end end
+	end
+end)

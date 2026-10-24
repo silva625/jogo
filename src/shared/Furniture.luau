@@ -48,32 +48,26 @@ function Furniture.create(id, colorId, origin)
 			p("Braço", Vector3.new(.45, 1.4, 3), Vector3.new(x, 1.9, 0), color, Enum.Material.Fabric)
 			for _, z in {-1, 1} do p("Pé", Vector3.new(.3, .85, .3), Vector3.new(x, .425, z), wood) end
 		end
-	elseif id == "galaxy" then
-		p("Pedestal", Vector3.new(3, .45, 2.5), Vector3.new(0, .225, 0), dark)
-		local glass = p("Aquário", Vector3.new(2.8, 2.8, 2.3), Vector3.new(0, 1.85, 0), Color3.fromRGB(119, 179, 221), Enum.Material.Glass)
-		glass.Transparency, glass.CanCollide = .65, false
-		p("Sol púrpura", Vector3.new(.9, .9, .9), Vector3.new(0, 1.8, 0), color, Enum.Material.Neon, Enum.PartType.Ball)
-		for i = 1, 9 do
-			local a = i * math.pi * 2 / 9
-			p("Estrela", Vector3.new(.18, .18, .18), Vector3.new(math.cos(a), 1.6 + math.sin(a) * .65, math.sin(a) * .8), Color3.fromRGB(145, 225, 255), Enum.Material.Neon, Enum.PartType.Ball)
+	elseif id == "frame" then
+		p("Apoio", Vector3.new(1.8, .2, 1.6), Vector3.new(0, .1, 0), wood)
+		p("Cavalete", Vector3.new(.25, 2.1, .3), Vector3.new(0, 1.1, 0), wood)
+		p("Moldura", Vector3.new(2.5, 2, .25), Vector3.new(0, 2.4, 0), wood)
+		p("Tela", Vector3.new(2.15, 1.65, .04), Vector3.new(0, 2.4, .15), Color3.fromRGB(186, 200, 202))
+		p("Paisagem", Vector3.new(2.15, .6, .06), Vector3.new(0, 1.95, .18), color)
+	elseif id == "vase" then
+		p("Vaso cerâmico", Vector3.new(1.6, 2, 1.6), Vector3.new(0, 1, 0), color)
+		for i = 1, 5 do
+			local x, z = math.cos(i * 1.26) * .5, math.sin(i * 1.26) * .5
+			p("Haste da flor", Vector3.new(.06, 1.5, .06), Vector3.new(x, 2.5, z), Color3.fromRGB(90, 121, 70))
+			p("Flor", Vector3.new(.65, .4, .65), Vector3.new(x, 3.3, z), Color3.fromRGB(230, 209, 172), Enum.Material.SmoothPlastic, Enum.PartType.Ball)
 		end
-	elseif id == "star_tree" then
-		p("Vaso estelar", Vector3.new(1.7, 1.2, 1.7), Vector3.new(0, .6, 0), dark)
-		p("Tronco", Vector3.new(.3, 2.7, .3), Vector3.new(0, 2, 0), wood)
-		for i = 1, 7 do
-			local a = i * math.pi * 2 / 7
-			local star = p("Cristal", Vector3.new(.65, 1.1, .65), Vector3.new(math.cos(a), 2.5 + (i % 3) * .6, math.sin(a)), color, Enum.Material.Neon)
-			star.CFrame *= CFrame.Angles(0, a, math.pi / 4)
-		end
-	elseif id == "moon" then
-		p("Base lunar", Vector3.new(2.2, .35, 2.2), Vector3.new(0, .175, 0), dark)
-		p("Haste", Vector3.new(.15, 1.5, .15), Vector3.new(0, 1, 0), color)
-		local moon = p("Lua", Vector3.new(2.2, 2.2, 2.2), Vector3.new(0, 2.5, 0), Color3.fromRGB(255, 231, 190), Enum.Material.Neon, Enum.PartType.Ball)
-		local light = Instance.new("PointLight", moon)
-		light.Color, light.Range, light.Brightness = color, 12, .7
-		for i = 1, 3 do
-			p("Cratera", Vector3.new(.35, .35, .1), Vector3.new((i - 2) * .45, 2.35 + (i % 2) * .4, 1.04), color, Enum.Material.SmoothPlastic, Enum.PartType.Ball).CanCollide = false
-		end
+	elseif id == "clock" then
+		p("Pedestal", Vector3.new(2.2, .3, 1.3), Vector3.new(0, .15, 0), wood)
+		p("Base do relógio", Vector3.new(1.5, 1, 1), Vector3.new(0, .8, 0), wood)
+		p("Caixa do relógio", Vector3.new(2.1, 2.1, .55), Vector3.new(0, 2.1, 0), color)
+		p("Mostrador", Vector3.new(1.8, 1.8, .06), Vector3.new(0, 2.1, .32), Color3.fromRGB(236, 229, 213))
+		p("Ponteiro de horas", Vector3.new(.09, .55, .05), Vector3.new(0, 2.35, .37), dark)
+		p("Ponteiro de minutos", Vector3.new(.65, .07, .05), Vector3.new(.3, 2.1, .37), dark)
 	elseif id == "shelf" then
 		for _, x in {-1.4, 1.4} do p("Lateral", Vector3.new(.25, 4.8, 1.3), Vector3.new(x, 2.4, 0), wood) end
 		for level = 0, 3 do

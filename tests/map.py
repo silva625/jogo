@@ -16,23 +16,28 @@ for house in houses.findall('Item'):
         assert required in children, (name(house), required)
     marker = children['SpawnMarker']
     assert marker.findtext("Properties/bool[@name='CanCollide']") == 'false'
-    assert len(children['Telhado'].findall('Item')) == 5
+    slopes = [p for p in children['Telhado'].findall('Item') if name(p) == 'Telhas']
+    assert len(slopes) == 2
+    assert all(abs(float(p.findtext("Properties/CoordinateFrame/R10"))) > .1 for p in slopes)
     for p in house.iter('Item'):
         if p.attrib['class'] == 'Part':
             assert p.findtext("Properties/bool[@name='Anchored']") == 'true'
             sizes = p.find("Properties/Vector3[@name='size']")
             assert all(float(sizes.findtext(axis)) > 0 for axis in 'XYZ')
-surreal = next(n for n in model.iter('Item') if name(n) == 'Surreal')
-objects = {name(n): n for n in surreal.findall('Item')}
-assert 'PortalOut' in objects and 'PortalReturn' in objects
-assert 'Jardim lunar' in objects
-crystals = objects['Cristais'].findall('Item')
-assert {name(c) for c in crystals} == {f'Crystal{i}' for i in range(1, 13)}
-for c in crystals:
-    assert c.findtext("Properties/bool[@name='CanCollide']") == 'false'
-floor = objects['Jardim lunar'].find("Properties/CoordinateFrame[@name='CFrame']")
-# Server arrival (135, 31, -149) must be above the solid observatory platform.
-assert abs(135 - float(floor.findtext('X'))) < 28
-assert abs(-149 - float(floor.findtext('Z'))) < 28
-assert float(floor.findtext('Y')) + .5 < 31
-print('PASS: eight houses, mission objects, anchored geometry, twelve crystals, portals and observatory landing')
+names = {name(n) for n in model.iter('Item')}
+for removed in ('Surreal', 'PortalOut', 'PortalReturn', 'Cristais', 'OrbeFlutuante', 'Lua gigante', 'Nuvem'):
+    assert removed not in names, removed
+shop = next(n for n in model.iter('Item') if name(n) == 'Loja')
+shop_parts = {name(n): n for n in shop.findall('Item')}
+for required in ('Piso', 'Balcao', 'Vitrine', 'Entrada', 'Passarela', 'Telhado', 'Letreiro', 'Caixa registradora'):
+    assert required in shop_parts, required
+floor = shop_parts['Piso'].find("Properties/CoordinateFrame[@name='CFrame']")
+assert float(floor.findtext('X')) == 317 and float(floor.findtext('Z')) == -3
+assert float(floor.findtext('Y')) == .6
+# Doorway remains free: vitrines stop at x +/-5, leaving a ten-stud entrance.
+for p in shop.findall('Item'):
+    if name(p) == 'Vitrine':
+        cf = p.find("Properties/CoordinateFrame[@name='CFrame']")
+        size = p.find("Properties/Vector3[@name='size']")
+        assert abs(float(cf.findtext('X')) - 317) - float(size.findtext('X')) / 2 >= 5
+print('PASS: eight houses, work targets, physical shop with open doorway and no fantasy scenery')

@@ -46,8 +46,13 @@ local slots = {}
 for i, name in {"Saco", "Rolo", "Decoração"} do
 	slots[i] = label(toolbar, i .. "  " .. name, UDim2.fromOffset(12 + (i - 1) * 102, 10), UDim2.fromOffset(96, 56))
 end
-local hint = label(gui, "Segure E para interagir · Loja [L] · Mochila [B]\nApós pintar, escolha sua decoração na loja", UDim2.new(0.5, -170, 1, -152), UDim2.fromOffset(340, 58))
+local hint = label(gui, "Segure E para limpar e pintar · Mochila [B]\nCompre na Casa & Cia, no fim da rua", UDim2.new(0.5, -170, 1, -152), UDim2.fromOffset(340, 58))
 hint.TextXAlignment = Enum.TextXAlignment.Center
+player:GetAttributeChangedSignal("WorkAction"):Connect(function()
+	local action = player:GetAttribute("WorkAction")
+	local names = { "Varrendo e recolhendo o lixo...", "Pintando a parede...", "Colocando decoração..." }
+	hint.Text = names[action] and (names[action] .. "\nContinue segurando E · Solte para cancelar") or "Segure E para limpar e pintar · Mochila [B]\nCompre na Casa & Cia, no fim da rua"
+end)
 local toast = panel("Notificação", UDim2.fromOffset(330, 54), UDim2.new(0.5, 0, 0, 20), Vector2.new(0.5, 0))
 toast.Visible = false
 local toastText = label(toast, "", UDim2.fromOffset(12, 4), UDim2.fromOffset(306, 46), Color3.fromRGB(78, 225, 158))
@@ -64,7 +69,7 @@ close.Activated:Connect(function() complete.Visible = false end)
 local function toggleDecorations()
 	local shopGui = player.PlayerGui:FindFirstChild("DecorShop")
 	local window = shopGui and shopGui:FindFirstChild("Window")
-	if window then window.Visible = not window.Visible end
+	if window then window:SetAttribute("InventoryMode", true); window.Visible = not window.Visible end
 end
 local bag = Instance.new("TextButton", gui)
 bag.Size, bag.Position = UDim2.fromOffset(140, 38), UDim2.new(1, -158, 1, -62)
@@ -132,6 +137,7 @@ local function cacheHouse(house)
 	roofCache[house] = { floor = floor, parts = parts }
 end
 for _, house in houses:GetChildren() do cacheHouse(house) end
+cacheHouse(workspace.Neighborhood:WaitForChild("Loja"))
 houses.ChildAdded:Connect(cacheHouse)
 houses.ChildRemoved:Connect(function(house) roofCache[house] = nil end)
 local elapsed = 0
@@ -142,7 +148,7 @@ game:GetService("RunService").Heartbeat:Connect(function(dt)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	for _, entry in roofCache do
 		local pos = root and entry.floor.CFrame:PointToObjectSpace(root.Position)
-		local inside = pos and math.abs(pos.X) < 20 and math.abs(pos.Z) < 23 and pos.Y < 15
+		local inside = pos and math.abs(pos.X) < entry.floor.Size.X / 2 + 3 and math.abs(pos.Z) < entry.floor.Size.Z / 2 + 8 and pos.Y > -4 and pos.Y < 15
 		for _, roof in entry.parts do
 			if roof:IsA("BasePart") then roof.LocalTransparencyModifier = inside and 1 or 0 end
 		end

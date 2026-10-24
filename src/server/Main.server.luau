@@ -3,7 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Mission = require(ReplicatedStorage.Shared.Mission)
 local Decorations = require(ReplicatedStorage.Shared.Decorations)
 local Furniture = require(ReplicatedStorage.Shared.Furniture)
-local Exploration = require(ReplicatedStorage.Shared.Exploration)
+local WorkRules = require(ReplicatedStorage.Shared.WorkRules)
+local WorkAnimation = require(script.Parent.WorkAnimation)
+local ShopRules = require(ReplicatedStorage.Shared.ShopRules)
 local update = Instance.new("RemoteEvent")
 update.Name = "RenovationUpdate"
 update.Parent = ReplicatedStorage
@@ -11,6 +13,13 @@ local shop = Instance.new("RemoteEvent")
 shop.Name = "DecorationShop"
 shop.Parent = ReplicatedStorage
 local sessions = {}
+local store = workspace:WaitForChild("Neighborhood"):WaitForChild("Loja")
+local function atStore(player)
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return false end
+	local position = store.Piso.CFrame:PointToObjectSpace(root.Position)
+	return ShopRules.inside(position.X, position.Y, position.Z)
+end
 local lots = workspace:WaitForChild("Neighborhood"):WaitForChild("Casas")
 local available = {}
 local originals = {}
@@ -29,7 +38,6 @@ local function send(player, message)
 	player:SetAttribute("Stage", s.stage)
 	player:SetAttribute("Progress", s.count)
 	player:SetAttribute("Completed", s.completed)
-	player:SetAttribute("CrystalCount", session.exploration.count)
 	update:FireClient(player, message or "", session.decor)
 end
 shop.OnServerEvent:Connect(function(player, action, id, color)
@@ -40,6 +48,7 @@ shop.OnServerEvent:Connect(function(player, action, id, color)
 	session.lastShop = now
 	local message = ""
 	if action == "Buy" and type(id) == "string" then
+		if not atStore(player) then send(player, "Para comprar, visite a loja Casa & Cia no fim da rua."); return end
 		local _, result = Decorations.buy(session.state, session.decor, id)
 		message = result
 	elseif action == "Select" and type(id) == "string" and type(color) == "string" then
@@ -61,11 +70,14 @@ local function createHouse(player)
 	model.Name = "Casa de " .. player.Name
 	local state = Mission.new()
 	local marker = model:FindFirstChild("SpawnMarker")
-	local session = { state = state, decor = Decorations.new(), exploration = Exploration.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
+	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
 	sessions[player] = session
 	local walls = {}
 	for i = 1, 4 do walls[i] = model:FindFirstChild("Paint" .. i) end
 	local prompts = {}
+	local function stopWork()
+		if session.work then session.work.animation.stop(); session.work = nil end
+	end
 	local function refresh()
 		for _, item in prompts do
 			item.prompt.Enabled = if item.stage == 3 then state.stage >= 3 else not state.completed and item.stage == state.stage and not state.used[item.id]
@@ -77,15 +89,36 @@ local function createHouse(player)
 		local prompt = Instance.new("ProximityPrompt", anchor)
 		prompt.ActionText = stage == 3 and "Colocar / trocar decoração" or Mission.stages[stage].action
 		prompt.ObjectText = Mission.stages[stage].title
-		prompt.HoldDuration = stage == 1 and 0.5 or 1.2
+		prompt.HoldDuration = WorkRules.duration[stage]
+		prompt:SetAttribute("WorkStage", stage)
+		prompt:SetAttribute("OwnerUserId", player.UserId)
 		prompt.RequiresLineOfSight = false
-		prompt.MaxActivationDistance = 10
+		prompt.MaxActivationDistance = stage == 3 and 8 or 6
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		table.insert(prompts, { prompt = prompt, stage = stage, id = id })
+		prompt.PromptButtonHoldBegan:Connect(function(actor)
+			if actor ~= player or session.busy then return end
+			if stage == 3 then
+				if state.stage < 3 then return end
+			elseif state.stage ~= stage or state.used[id] then return end
+			local root = actor.Character and actor.Character:FindFirstChild("HumanoidRootPart")
+			if not root or (root.Position - anchor.WorldPosition).Magnitude > prompt.MaxActivationDistance + 1 then return end
+			stopWork()
+			local animation = WorkAnimation.start(actor, stage, anchor)
+			if animation then session.work = { animation = animation, prompt = prompt, started = os.clock() } end
+		end)
+		prompt.PromptButtonHoldEnded:Connect(function(actor)
+			if actor ~= player then return end
+			local current = session.work
+			task.delay(.2, function() if current and session.work == current then stopWork() end end)
+		end)
 		prompt.Triggered:Connect(function(actor)
 			if actor ~= player or session.busy then return end
 			local root = actor.Character and actor.Character:FindFirstChild("HumanoidRootPart")
-			if not root or (root.Position - anchor.WorldPosition).Magnitude > 12 then return end
+			if not root or (root.Position - anchor.WorldPosition).Magnitude > prompt.MaxActivationDistance + 1 then return end
+			local work = session.work
+			if not work or work.prompt ~= prompt or work.animation.stopped or not WorkRules.canFinish(work.started, os.clock(), stage) then return end
+			stopWork()
 			session.busy = true
 			if decorSlot then
 				local ok, message = Decorations.place(state, session.decor, decorSlot)
@@ -114,12 +147,17 @@ local function createHouse(player)
 		interactive(trash, 1, "trash" .. i, nil, function()
 			trash.Transparency = 1
 			trash.CanCollide = false
+			for _, debris in trash:GetDescendants() do
+				if debris:IsA("BasePart") then debris.Transparency = 1; debris.CanCollide = false end
+			end
 		end)
 	end
-	local positions = {Vector3.new(0, -2, 1), Vector3.new(1, -2, 0), Vector3.new(-1, -2, 0), Vector3.new(0, -2, -1)}
+	local positions = {Vector3.new(0, 1.3, 1), Vector3.new(1, 1.3, 0), Vector3.new(-1, 1.3, 0), Vector3.new(0, 1.3, -1)}
 	for i, wall in walls do
 		interactive(wall, 2, "wall" .. i, positions[i], function()
-			wall.Color = Color3.fromRGB(219, 192, 210)
+			wall.Color = Color3.fromRGB(218, 211, 196)
+			local surfaces = model:FindFirstChild("PaintGroup" .. i)
+			if surfaces then for _, surface in surfaces:GetChildren() do surface.Color = wall.Color end end
 		end)
 	end
 	for i = 1, 3 do
@@ -143,6 +181,7 @@ local function createHouse(player)
 			character:PivotTo(CFrame.lookAt(session.spawn, model.Piso.Position + Vector3.new(0, 3, 0)))
 		end
 	end
+	player.CharacterRemoving:Connect(stopWork)
 	player.CharacterAdded:Connect(spawnCharacter)
 	if player.Character then task.spawn(spawnCharacter, player.Character) end
 end
@@ -151,6 +190,7 @@ for _, player in Players:GetPlayers() do task.spawn(createHouse, player) end
 Players.PlayerRemoving:Connect(function(player)
 	local session = sessions[player]
 	if session then
+		if session.work then session.work.animation.stop() end
 		session.house:Destroy()
 		local replacement = originals[session.slot]:Clone()
 		replacement.Parent = lots
@@ -159,45 +199,10 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-local surreal = workspace.Neighborhood:WaitForChild("Surreal")
-local function nearby(player, target)
-	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-	return root and (root.Position - target.Position).Magnitude <= 12
-end
-for id = 1, Exploration.total do
-	local crystal = surreal.Cristais:FindFirstChild("Crystal" .. id)
-	local prompt = Instance.new("ProximityPrompt", crystal)
-	prompt.ActionText, prompt.ObjectText = "Coletar cristal", "Fragmento de sonho · +100 moedas"
-	prompt.HoldDuration, prompt.MaxActivationDistance, prompt.RequiresLineOfSight = .4, 9, false
-	prompt.Triggered:Connect(function(player)
-		local session = sessions[player]
-		if not session or not nearby(player, crystal) then return end
-		local ok, cash, xp, complete = Exploration.claim(session.exploration, id)
-		if not ok then return end
-		session.state.cash += cash
-		session.state.xp += xp
-		player:SetAttribute("Crystal" .. id, true)
-		if complete then session.decor.inventory.galaxy = (session.decor.inventory.galaxy or 0) + 1 end
-		send(player, complete and "12/12! +750 bônus e Aquário de galáxia na mochila!" or "Cristal encontrado! +100 moedas · +25 XP")
-	end)
-end
-for _, route in {
-	{ name = "PortalOut", title = "Observatório dos Sonhos", destination = Vector3.new(135, 31, -149), look = Vector3.new(135, 31, -182) },
-	{ name = "PortalReturn", title = "Voltar ao bairro", destination = Vector3.new(300, 4, 52), look = Vector3.new(255, 4, 52) },
-} do
-	local portal = surreal:FindFirstChild(route.name)
-	local prompt = Instance.new("ProximityPrompt", portal)
-	prompt.ActionText, prompt.ObjectText = "Atravessar portal", route.title
-	prompt.HoldDuration, prompt.MaxActivationDistance, prompt.RequiresLineOfSight = 1, 10, false
-	prompt.Triggered:Connect(function(player)
-		local session = sessions[player]
-		if not session or not nearby(player, portal) then return end
-		local now = os.clock()
-		if now - (session.lastPortal or -10) < 2 then return end
-		session.lastPortal = now
-		player.Character:PivotTo(CFrame.lookAt(route.destination, route.look))
-		local root = player.Character:FindFirstChild("HumanoidRootPart")
-		if root then root.AssemblyLinearVelocity = Vector3.zero end
-		send(player, route.title)
-	end)
-end
+local counterPrompt = Instance.new("ProximityPrompt", store.Balcao)
+counterPrompt.ActionText, counterPrompt.ObjectText = "Ver móveis e decorações", "Casa & Cia · Loja de decoração"
+counterPrompt.HoldDuration, counterPrompt.MaxActivationDistance = .3, 10
+counterPrompt.RequiresLineOfSight = false
+counterPrompt.Triggered:Connect(function(player)
+	if sessions[player] and atStore(player) then shop:FireClient(player, "Open") end
+end)

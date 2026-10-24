@@ -1,0 +1,8 @@
+local Shop = require("../src/shared/ShopRules")
+assert(Shop.inside(0, 4, 0))
+assert(Shop.inside(25, 4, 17))
+assert(not Shop.inside(27, 4, 0), "Outside side wall")
+assert(not Shop.inside(0, 4, 19), "Outside doorway")
+assert(not Shop.inside(0, 14, 0), "Roof is not the shop interior")
+assert(not Shop.inside(0, -3, 0), "Below the floor")
+print("PASS: physical shop purchase area excludes outside, roof and underground")

@@ -1,57 +1,62 @@
 # De Casa em Casa — Roblox
 
-Protótipo de reforma de casas inspirado na referência enviada: HUD escuro com detalhes rosa, dinheiro, XP, inventário e painel de missões.
-
-## Entre Mundos: reforme o impossível
-
-O bairro agora flutua sobre nuvens, com orbes animados, iluminação de crepúsculo e um portal para o **Observatório dos Sonhos**, uma ilha com lua gigante. Vá ao portal no fim da rua e segure **E** para viajar; use o portal da ilha para retornar.
-
-Encontre **12 fragmentos de sonho**: nove no bairro e três no observatório. Cada um rende 100 moedas e 25 XP, uma vez por jogador na sessão. A coleção completa dá mais 750 moedas e um **Aquário de galáxia** grátis. O contador fica na tela; os cristais já coletados ficam apagados apenas para quem os coletou.
-
-A categoria **Surreais** da loja inclui Aquário de galáxia, Árvore de estrelas e Lua de cabeceira. A reforma continua sendo a missão principal; explorar é uma forma alternativa de ganhar moedas e escolher mais decorações.
+Jogo de reforma em um bairro residencial: limpar, pintar e escolher móveis para transformar uma casa abandonada. Visual com materiais de madeira, alvenaria, telhas e vidro, iluminação de dia e cores naturais.
 
 ## Abrir e jogar
 
-1. No GitHub, abra [`build/DeCasaEmCasa.rbxlx`](build/DeCasaEmCasa.rbxlx) e clique em **Download raw file** (ícone de download). Alternativamente, use **Code → Download ZIP** e extraia o projeto.
-2. No Roblox Studio (Windows ou macOS), use **File → Open from File**.
-3. O bairro já aparece no editor. Clique em **Play** para receber uma das oito casas e iniciar as missões.
-4. Aproxime-se dos objetos e segure **E**; no celular, use o botão de interação.
-5. Recolha os 8 lixos, pinte as 4 paredes e coloque as 3 decorações. A ferramenta muda automaticamente conforme a etapa.
-6. Use **L / Loja** ou **B / Mochila** para abrir o catálogo. Compre um item, escolha uma das quatro cores e clique em **Escolher**. Depois da pintura, segure **E** em um dos três pontos rosa para colocar a decoração selecionada.
-7. Você recebe **3 plantas grátis**. O catálogo também tem luminária, tapete, mesa, poltrona e estante. A aba **minha mochila** filtra itens comprados ou instalados. As prévias 3D mostram o modelo e a cor escolhidos.
-8. Você pode trocar decorações mesmo depois de concluir a reforma. O item retirado volta à mochila; mudar sua cor não exige outra compra. Cada ponto dá XP apenas na primeira colocação. Os três pontos são fixos nesta versão.
+1. No GitHub, abra [`build/DeCasaEmCasa.rbxlx`](build/DeCasaEmCasa.rbxlx) e clique em **Download raw file**. Também é possível usar **Code → Download ZIP**.
+2. Abra o arquivo novo no Roblox Studio, em **File → Open from File**. O bairro e a loja já aparecem antes do Play.
+3. Clique em **Play**. Cada jogador recebe uma das oito casas.
+4. Aproxime-se do lixo e segure **E** por 1,8 segundo para varrer e recolher. Depois de retirar os oito lixos, pinte as quatro paredes, segurando **E** por 2,4 segundos em cada uma.
+5. Depois da pintura, use **B / Mochila**, escolha um item e sua cor, e segure **E** em um dos três pontos de decoração. Você começa com três plantas grátis.
+6. Para comprar, caminhe até a **Casa & Cia**, no fim da rua. Entre pela abertura entre as vitrines e interaja com o **balcão**. As compras só são aceitas dentro da loja. **L** permite consultar o catálogo de qualquer lugar; a mochila pode ser usada na casa.
+7. O catálogo tem planta, luminária, tapete, mesa, poltrona, estante, quadro com cavalete, vaso de flores e relógio. Cada item tem quatro opções de cor.
+8. Trocar uma decoração devolve a anterior à mochila. É possível redecorar depois da conclusão, sem ganhar XP repetido pelo mesmo ponto.
+
+## Personagem trabalhando
+
+O personagem segura uma vassoura durante a limpeza, um rolo ao pintar e uma caixa ao decorar. Os gestos são **procedurais**, feitos com articulações Motor6D e TweenService no servidor, para outros jogadores também verem. Há suporte por nome de articulação para R15 e R6, sem IDs de animação externos.
+
+A interação reduz temporariamente a velocidade e orienta o personagem para o serviço. Soltar o botão, afastar-se, morrer ou trocar de personagem interrompe os gestos, remove a ferramenta e restaura as articulações, a velocidade e a rotação automática. O servidor valida dono, proximidade, etapa e duração antes de recompensar.
+
+Os gestos ainda precisam de ajuste visual no Studio, principalmente em avatares com proporções diferentes. Não são animações capturadas ou assets publicados no Animation Editor.
+
+## Cenário
+
+O bairro tem oito casas com telhados inclinados, sótãos fechados, calhas, varandas, chaminés, janelas com aberturas reais, caixas de correio, lixeiras e jardins. Há rua, calçadas, praça, árvores e colinas sobre terreno contínuo.
+
+A **Casa & Cia** tem fachada, vitrines, entrada aberta, balcão, caixa registradora, prateleiras, latas de tinta, móveis expostos, iluminação interna, estacionamento e furgão parado. O telhado fica invisível localmente ao entrar em uma casa ou na loja para facilitar a câmera.
+
+Foram removidos os elementos de fantasia: portais, ilhas, nuvens de peças, orbes, cristais, lua gigante e decorações surreais.
 
 ## Desenvolvimento na nuvem
 
-Use o checkout existente em `/workspace/jogo`. Não é necessário criar worktrees.
+Use o checkout existente em `/workspace/jogo`. Cada tarefa já é isolada; não crie worktrees.
 
 ```bash
 cd /workspace/jogo
-/workspace/tools/luau/luau tests/mission.luau
-/workspace/tools/luau/luau tests/decorations.luau
-/workspace/tools/luau/luau tests/exploration.luau
 python3 tests/map.py
-python3 scripts/build_map.py # Regerar o cenário após alterar o gerador
+for test in tests/*.luau; do /workspace/tools/luau/luau "$test"; done
+for source in src/server/*.luau src/client/*.luau src/shared/*.luau tests/*.luau; do
+  /workspace/tools/luau/luau-compile "$source" > /dev/null
+done
 /workspace/tools/rojo/rojo build default.project.json -o /workspace/artifacts/DeCasaEmCasa.rbxlx
 ```
 
-Ferramentas: Rojo 7.6.1 e Luau 0.699, instalados em `/workspace/tools`. O script de instalação reutilizável fica em `/workspace/setup-jogo.sh` e na configuração do ambiente. Não há pacotes npm, credenciais, serviços externos ou banco de dados necessários.
+Rojo 7.6.1 e Luau 0.699 ficam em `/workspace/tools`. O script reutilizável é `/workspace/setup-jogo.sh`, também salvo na configuração do ambiente. Não são necessários pacotes npm, credenciais, serviços externos ou banco de dados.
 
-O servidor distribui as oito casas e valida dono, distância, etapa e ações duplicadas. Ao sair, a casa é restaurada para o próximo jogador. O módulo `Mission` concentra as regras testáveis. `Hud.client.luau` gera a interface e oculta localmente o telhado ao entrar. O bairro é gerado por `scripts/build_map.py` e salvo em `src/map/Neighborhood.rbxmx`, com peças nativas e sem assets externos.
+O cenário é gerado por `scripts/build_map.py` em `src/map/Neighborhood.rbxmx`. Só execute o gerador quando quiser substituir a geometria gerada; preserve eventuais edições manuais no mapa. O módulo `Mission` controla as etapas, `Decorations` controla compras e inventário, `ShopRules` define a área de compra, `WorkRules` define as durações e `WorkAnimation` gera ferramentas e movimentos.
 
-O mapa inclui rua, calçadas, praça, postes, árvores, colinas, cercas e jardins. Cada casa tem varanda, telhado, chaminé, floreiras, sala e bancada de cozinha. A iluminação usa atmosfera e correção de cor. As janelas são decorativas nesta versão.
+## Validação e limites
 
-## Validação
+Verificados na nuvem: sintaxe Luau, regras das missões, dinheiro e inventário, trocas, compras dentro/fora da área da loja, duração das interações, estrutura e geração do lugar. Os testes da loja verificam a geometria de acesso e as regras de área; o runtime Roblox não foi executado aqui.
 
-Verificados na nuvem: compilação sintática dos arquivos Luau, regras das missões, compras, saldo insuficiente, inventário, troca, cores, conclusão sem compras obrigatórias, proteção contra recompensa repetida e geração do arquivo de lugar.
+Pendente no Studio: Play, limpar/pintar/decorar, conferir gestos e ferramentas em R15/R6, cancelar no meio, afastar-se, morrer/resetar durante a ação, verificar outro jogador vendo a animação; caminhar até a loja, entrar, abrir o catálogo pelo balcão, comprar e recusar compra fora da loja, testar mochila, troca de cores, câmera e Device Emulator.
 
-Pendente no Studio: executar Play e completar a reforma; abrir loja, comprar, escolher cor, colocar e trocar móveis antes/depois da conclusão; testar saldo insuficiente, reset do personagem, dois jogadores e o Device Emulator. Conferir portal de ida/volta, coleta independente dos 12 cristais, recompensa da coleção, modelos surreais, orbes e iluminação. O Studio não está disponível neste ambiente Linux, portanto o runtime Roblox e o visual não foram validados aqui.
-
-## Limites desta primeira versão
-
-- Um bairro com oito casas, loja e três etapas de reforma por jogador; sem demolição ou minimapa. Configure o máximo de jogadores como **8** nas configurações do jogo no Roblox; o protótipo recusa jogadores adicionais quando todas as casas estiverem ocupadas.
-- Dinheiro, XP, compras, cristais e decoração duram a sessão. Não há DataStore nem compras com Robux. Compras são bloqueadas quando a mochila tem 30 unidades; o presente da coleção pode ultrapassar esse limite. Os itens instalados ocupam os três pontos fixos da casa.
-- O telhado fica invisível apenas para o jogador que entra na casa. O cenário ainda usa peças simples e precisa de revisão visual no Studio.
-- Ao sair e entrar novamente, a missão começa de novo. “Continuar explorando” fecha a tela de conclusão.
+- O Roblox Studio não está disponível neste ambiente Linux. Não há validação visual ou de física aqui.
+- O mapa usa peças nativas, sem modelos fotorrealistas. O estilo está mais próximo de uma simulação residencial, mas ainda é um protótipo.
+- Configure o máximo de jogadores como **8** no Roblox. Cada casa é restaurada quando seu dono sai.
+- Dinheiro, XP, compras e decoração duram a sessão, sem DataStore ou Robux.
+- A mochila comporta 30 unidades compradas e há três posições fixas de decoração por casa. Não há construção livre, demolição ou minimapa.
 
 Publicar o jogo no Roblox é uma etapa separada, feita pelo dono no Studio após os testes.
