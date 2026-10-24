@@ -22,4 +22,17 @@ for house in houses.findall('Item'):
             assert p.findtext("Properties/bool[@name='Anchored']") == 'true'
             sizes = p.find("Properties/Vector3[@name='size']")
             assert all(float(sizes.findtext(axis)) > 0 for axis in 'XYZ')
-print('PASS: eight editable houses; all mission objects, spawns, roofs and anchored geometry present')
+surreal = next(n for n in model.iter('Item') if name(n) == 'Surreal')
+objects = {name(n): n for n in surreal.findall('Item')}
+assert 'PortalOut' in objects and 'PortalReturn' in objects
+assert 'Jardim lunar' in objects
+crystals = objects['Cristais'].findall('Item')
+assert {name(c) for c in crystals} == {f'Crystal{i}' for i in range(1, 13)}
+for c in crystals:
+    assert c.findtext("Properties/bool[@name='CanCollide']") == 'false'
+floor = objects['Jardim lunar'].find("Properties/CoordinateFrame[@name='CFrame']")
+# Server arrival (135, 31, -149) must be above the solid observatory platform.
+assert abs(135 - float(floor.findtext('X'))) < 28
+assert abs(-149 - float(floor.findtext('Z'))) < 28
+assert float(floor.findtext('Y')) + .5 < 31
+print('PASS: eight houses, mission objects, anchored geometry, twelve crystals, portals and observatory landing')

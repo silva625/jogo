@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Mission = require(ReplicatedStorage.Shared.Mission)
 local Decorations = require(ReplicatedStorage.Shared.Decorations)
 local Furniture = require(ReplicatedStorage.Shared.Furniture)
+local Exploration = require(ReplicatedStorage.Shared.Exploration)
 local update = Instance.new("RemoteEvent")
 update.Name = "RenovationUpdate"
 update.Parent = ReplicatedStorage
@@ -28,6 +29,7 @@ local function send(player, message)
 	player:SetAttribute("Stage", s.stage)
 	player:SetAttribute("Progress", s.count)
 	player:SetAttribute("Completed", s.completed)
+	player:SetAttribute("CrystalCount", session.exploration.count)
 	update:FireClient(player, message or "", session.decor)
 end
 shop.OnServerEvent:Connect(function(player, action, id, color)
@@ -59,7 +61,7 @@ local function createHouse(player)
 	model.Name = "Casa de " .. player.Name
 	local state = Mission.new()
 	local marker = model:FindFirstChild("SpawnMarker")
-	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
+	local session = { state = state, decor = Decorations.new(), exploration = Exploration.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
 	sessions[player] = session
 	local walls = {}
 	for i = 1, 4 do walls[i] = model:FindFirstChild("Paint" .. i) end
@@ -156,3 +158,46 @@ Players.PlayerRemoving:Connect(function(player)
 		sessions[player] = nil
 	end
 end)
+
+local surreal = workspace.Neighborhood:WaitForChild("Surreal")
+local function nearby(player, target)
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	return root and (root.Position - target.Position).Magnitude <= 12
+end
+for id = 1, Exploration.total do
+	local crystal = surreal.Cristais:FindFirstChild("Crystal" .. id)
+	local prompt = Instance.new("ProximityPrompt", crystal)
+	prompt.ActionText, prompt.ObjectText = "Coletar cristal", "Fragmento de sonho · +100 moedas"
+	prompt.HoldDuration, prompt.MaxActivationDistance, prompt.RequiresLineOfSight = .4, 9, false
+	prompt.Triggered:Connect(function(player)
+		local session = sessions[player]
+		if not session or not nearby(player, crystal) then return end
+		local ok, cash, xp, complete = Exploration.claim(session.exploration, id)
+		if not ok then return end
+		session.state.cash += cash
+		session.state.xp += xp
+		player:SetAttribute("Crystal" .. id, true)
+		if complete then session.decor.inventory.galaxy = (session.decor.inventory.galaxy or 0) + 1 end
+		send(player, complete and "12/12! +750 bônus e Aquário de galáxia na mochila!" or "Cristal encontrado! +100 moedas · +25 XP")
+	end)
+end
+for _, route in {
+	{ name = "PortalOut", title = "Observatório dos Sonhos", destination = Vector3.new(135, 31, -149), look = Vector3.new(135, 31, -182) },
+	{ name = "PortalReturn", title = "Voltar ao bairro", destination = Vector3.new(300, 4, 52), look = Vector3.new(255, 4, 52) },
+} do
+	local portal = surreal:FindFirstChild(route.name)
+	local prompt = Instance.new("ProximityPrompt", portal)
+	prompt.ActionText, prompt.ObjectText = "Atravessar portal", route.title
+	prompt.HoldDuration, prompt.MaxActivationDistance, prompt.RequiresLineOfSight = 1, 10, false
+	prompt.Triggered:Connect(function(player)
+		local session = sessions[player]
+		if not session or not nearby(player, portal) then return end
+		local now = os.clock()
+		if now - (session.lastPortal or -10) < 2 then return end
+		session.lastPortal = now
+		player.Character:PivotTo(CFrame.lookAt(route.destination, route.look))
+		local root = player.Character:FindFirstChild("HumanoidRootPart")
+		if root then root.AssemblyLinearVelocity = Vector3.zero end
+		send(player, route.title)
+	end)
+end

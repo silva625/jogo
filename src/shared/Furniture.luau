@@ -48,6 +48,32 @@ function Furniture.create(id, colorId, origin)
 			p("Braço", Vector3.new(.45, 1.4, 3), Vector3.new(x, 1.9, 0), color, Enum.Material.Fabric)
 			for _, z in {-1, 1} do p("Pé", Vector3.new(.3, .85, .3), Vector3.new(x, .425, z), wood) end
 		end
+	elseif id == "galaxy" then
+		p("Pedestal", Vector3.new(3, .45, 2.5), Vector3.new(0, .225, 0), dark)
+		local glass = p("Aquário", Vector3.new(2.8, 2.8, 2.3), Vector3.new(0, 1.85, 0), Color3.fromRGB(119, 179, 221), Enum.Material.Glass)
+		glass.Transparency, glass.CanCollide = .65, false
+		p("Sol púrpura", Vector3.new(.9, .9, .9), Vector3.new(0, 1.8, 0), color, Enum.Material.Neon, Enum.PartType.Ball)
+		for i = 1, 9 do
+			local a = i * math.pi * 2 / 9
+			p("Estrela", Vector3.new(.18, .18, .18), Vector3.new(math.cos(a), 1.6 + math.sin(a) * .65, math.sin(a) * .8), Color3.fromRGB(145, 225, 255), Enum.Material.Neon, Enum.PartType.Ball)
+		end
+	elseif id == "star_tree" then
+		p("Vaso estelar", Vector3.new(1.7, 1.2, 1.7), Vector3.new(0, .6, 0), dark)
+		p("Tronco", Vector3.new(.3, 2.7, .3), Vector3.new(0, 2, 0), wood)
+		for i = 1, 7 do
+			local a = i * math.pi * 2 / 7
+			local star = p("Cristal", Vector3.new(.65, 1.1, .65), Vector3.new(math.cos(a), 2.5 + (i % 3) * .6, math.sin(a)), color, Enum.Material.Neon)
+			star.CFrame *= CFrame.Angles(0, a, math.pi / 4)
+		end
+	elseif id == "moon" then
+		p("Base lunar", Vector3.new(2.2, .35, 2.2), Vector3.new(0, .175, 0), dark)
+		p("Haste", Vector3.new(.15, 1.5, .15), Vector3.new(0, 1, 0), color)
+		local moon = p("Lua", Vector3.new(2.2, 2.2, 2.2), Vector3.new(0, 2.5, 0), Color3.fromRGB(255, 231, 190), Enum.Material.Neon, Enum.PartType.Ball)
+		local light = Instance.new("PointLight", moon)
+		light.Color, light.Range, light.Brightness = color, 12, .7
+		for i = 1, 3 do
+			p("Cratera", Vector3.new(.35, .35, .1), Vector3.new((i - 2) * .45, 2.35 + (i % 2) * .4, 1.04), color, Enum.Material.SmoothPlastic, Enum.PartType.Ball).CanCollide = false
+		end
 	elseif id == "shelf" then
 		for _, x in {-1.4, 1.4} do p("Lateral", Vector3.new(.25, 4.8, 1.3), Vector3.new(x, 2.4, 0), wood) end
 		for level = 0, 3 do

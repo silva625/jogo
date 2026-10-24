@@ -54,8 +54,8 @@ for i, color in Catalog.colors do
 	colorButtons[color.id] = b
 end
 local filters = {}
-for i, name in {"Todos", "Móveis", "Plantas", "Luzes", "Tapetes"} do
-	filters[name] = button(window, name, 22 + (i - 1) * 131, 166, 123, 28, function()
+for i, name in {"Todos", "Móveis", "Plantas", "Luzes", "Tapetes", "Surreais"} do
+	filters[name] = button(window, name, 22 + (i - 1) * 109, 166, 102, 28, function()
 		category = name
 		render()
 	end)

@@ -152,11 +152,46 @@ for z in (43, 61):
     part(park, 'Banco assento', (-48, 2, z), (12, .6, 2.4), (138, 96, 62), 512)
     part(park, 'Banco encosto', (-48, 3.2, z + 1), (12, 2, .4), (138, 96, 62), 512)
     for x in (-52, -44): part(park, 'Pés banco', (x, .9, z), (.6, 2, 2), (48, 58, 58), 1088)
-sign(park, 'Boas-vindas', 'BAIRRO PRIMAVERA\nDe casas abandonadas a novos lares', (-48, 9, 34), (24, 5, .6))
+sign(park, 'Boas-vindas', 'ENTRE MUNDOS\nReforme o impossível', (-48, 9, 34), (24, 5, .6))
 for x in (-58, -38): part(park, 'Coluna placa', (x, 4, 34), (.5, 8, .5), (97, 78, 61), 512)
 for i in range(16):
     x = -85 + i * 30
     part(land, 'Colina distante', (x, 0, -82), (60, random.uniform(20, 38), 48), (103, 137, 104), 1280, shape=0)
+
+# A floating neighborhood above clouds, connected to a small observatory island.
+surreal, _ = item('Folder', 'Surreal', world)
+part(surreal, 'Rocha da ilha principal', (135, -13, 50), (438, 25, 245), (64, 72, 91), 800)
+for i in range(18):
+    x, z = random.uniform(-110, 370), random.uniform(-100, 175)
+    part(surreal, 'Nuvem', (x, random.uniform(-35, -25), z), (random.uniform(40, 75), 12, random.uniform(24, 45)), (210, 205, 232), shape=0, transparent=.15, collide=False)
+part(surreal, 'Ilha do observatório', (135, 18, -160), (68, 16, 68), (78, 78, 113), 800, shape=0)
+part(surreal, 'Jardim lunar', (135, 26, -160), (60, 1, 60), (122, 125, 160), 800)
+for x in (105, 165): part(surreal, 'Guarda-corpo lunar', (x, 28, -160), (.5, 3, 60), (142, 114, 207), 288, transparent=.4)
+part(surreal, 'Guarda-corpo lunar', (135, 28, -190), (60, 3, .5), (142, 114, 207), 288, transparent=.4)
+part(surreal, 'Guarda-corpo lunar', (135, 28, -130), (60, 3, .5), (142, 114, 207), 288, transparent=.4)
+part(surreal, 'Lua gigante', (135, 58, -182), (23, 23, 23), (255, 223, 181), 288, shape=0, collide=False)
+for i in range(24):
+    a = i * math.pi * 2 / 24
+    part(surreal, 'Órbita da lua', (135 + math.cos(a) * 19, 58 + math.sin(a) * 19, -182), (1, 1, 1), (147, 222, 255), 288, shape=0, collide=False)
+for name, pos, tint in [('PortalOut', (310, 0, 52), (163, 117, 255)), ('PortalReturn', (135, 27, -137), (98, 225, 218))]:
+    x, y, z = pos
+    part(surreal, name, (x, y + 2, z), (3, 4, 1), tint, 288, transparent=.65, collide=False)
+    part(surreal, 'Base do portal', (x, y + .2, z), (9, .5, 5), (56, 47, 83), 800)
+    for i in range(16):
+        a = i * math.pi * 2 / 16
+        part(surreal, 'Anel do portal', (x + math.cos(a) * 3.7, y + 4.5 + math.sin(a) * 3.7, z), (1.1, 1.1, .8), tint, 288, shape=0, collide=False)
+    light, lp = item('PointLight', 'Brilho', part(surreal, 'Núcleo', (x, y + 4, z), (1, 1, 1), tint, 288, shape=0, transparent=.3, collide=False))
+    prop(lp, 'float', 'Range', 18)
+    prop(lp, 'float', 'Brightness', 1.5)
+sign(surreal, 'Observatório', 'OBSERVATÓRIO DOS SONHOS\nExplore. Colecione. Transforme.', (135, 32, -185), (25, 5, .5), (151, 234, 255))
+sign(surreal, 'Destino do portal', 'PORTAL DO OBSERVATÓRIO\nSegure E para viajar', (310, 11, 52), (18, 3, .5), (195, 165, 255))
+crystals, _ = item('Folder', 'Cristais', surreal)
+locations = [(x, 2.4, z) for z in (28, 76) for x in (0, 85, 170, 255)] + [(320, 2.4, 70), (120, 29, -151), (150, 29, -151), (135, 29, -175)]
+for i, (x, y, z) in enumerate(locations, 1):
+    part(crystals, f'Crystal{i}', (x, y, z), (1.1, 2.8, 1.1), (147, 224, 255) if i < 10 else (247, 141, 224), 288, rotation=45, collide=False)
+    part(surreal, 'Pedestal de cristal', (x, y - 1.6, z), (2.4, .4, 2.4), (74, 65, 96), 800)
+for i in range(14):
+    part(surreal, 'OrbeFlutuante', (-50 + i * 29, 18 + (i % 3) * 4, 52), (1.5, 1.5, 1.5), (177, 145, 255), 288, shape=0, collide=False)
 
 destination = ROOT / 'src/map/Neighborhood.rbxmx'
 ET.indent(xml)
