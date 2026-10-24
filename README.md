@@ -25,7 +25,11 @@ Os gestos ainda precisam de ajuste visual no Studio, principalmente em avatares 
 
 O bairro tem oito casas com telhados inclinados, sótãos fechados, calhas, varandas, chaminés, janelas com aberturas reais, caixas de correio, lixeiras e jardins. Há rua, calçadas, praça, árvores e colinas sobre terreno contínuo.
 
-O projeto usa materiais nativos de 2022 e `LightingStyle = Realistic`, com iluminação de fim de tarde, reflexos de ambiente e sombras suaves. No Play, o terreno plano e as colinas são substituídos por Terrain nativo com grama. As casas têm juntas nas telhas, rodapés, cortinas e armários com puxadores, pia e torneira. A qualidade final também depende do nível gráfico do cliente Roblox.
+O projeto usa materiais nativos de 2022 e `LightingStyle = Realistic`, com horário fixo **17h15**, luz dourada, reflexos de ambiente, sombras suaves, raios solares discretos e névoa leve no horizonte. Varandas, interiores, postes e loja têm luzes quentes. Não há desfoque de profundidade aplicado durante o jogo.
+
+No Play, o terreno plano e as colinas são substituídos por Terrain nativo com grama de cores mais naturais. As casas têm paletas de fachada diferentes, juntas nas telhas, venezianas de sótão, rodapés, cortinas, corrimãos, condutores de chuva, caminhos com juntas, cascalho e armários com puxadores, pia e torneira. As copas das árvores projetam sombras.
+
+A qualidade final depende também do nível gráfico do cliente Roblox. No Studio, confira **Studio Settings → Rendering → Editor Quality Level** para avaliar o cenário no editor. Durante o jogo, confira a qualidade gráfica em **Esc → Settings**. Aumente aos poucos e observe o FPS; o projeto não força a qualidade máxima do dispositivo.
 
 A **Casa & Cia** tem fachada, vitrines, entrada aberta, balcão, caixa registradora, prateleiras, latas de tinta, móveis expostos, iluminação interna, estacionamento e furgão parado. O telhado fica invisível localmente ao entrar em uma casa ou na loja para facilitar a câmera.
 

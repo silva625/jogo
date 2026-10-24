@@ -24,6 +24,10 @@ def vector(props, name, values):
     n = ET.SubElement(props, 'Vector3', name=name)
     for axis, value in zip('XYZ', values): ET.SubElement(n, axis).text = str(value)
 
+def light_color(props, rgb=(255, 220, 174)):
+    color = ET.SubElement(props, 'Color3', name='Color')
+    for axis, value in zip('RGB', rgb): ET.SubElement(color, axis).text = str(value / 255)
+
 def part(parent, name, pos, size, color, material=256, rotation=0, shape=1, transparent=0, collide=True, roll=0):
     node, props = item('Part', name, parent)
     prop(props, 'bool', 'Anchored', 'true')
@@ -77,13 +81,15 @@ for x in range(-65, 350, 45):
         _, p = item('PointLight', 'Luz quente', lamp)
         prop(p, 'float', 'Brightness', 1.5)
         prop(p, 'float', 'Range', 23)
+        light_color(p)
 
 def tree(x, z, scale=1):
     part(land, 'Tronco', (x, 4 * scale, z), (8 * scale, 1.4 * scale, 1.4 * scale), (107, 79, 54), 512, shape=2, roll=90)
     for side in (-1, 1):
         part(land, 'Galho', (x + side * 1.2 * scale, 7 * scale, z), (4 * scale, .5 * scale, .5 * scale), (107, 79, 54), 512, shape=2, roll=side*48)
     for dx, dy, dz, width in [(0, 12, 0, 7), (-3, 9, 1, 6), (3, 9, -1, 5), (-1, 10, -3, 6), (1, 9, 3, 5), (0, 8, 0, 6)]:
-        part(land, 'Copa', (x + dx * scale, dy * scale, z + dz * scale), (width * scale, width * .65 * scale, width * .85 * scale), random.choice([(61, 94, 59), (78, 112, 65), (94, 123, 72)]), 1284, shape=0, collide=False)
+        leaves = part(land, 'Copa', (x + dx * scale, dy * scale, z + dz * scale), (width * scale, width * .65 * scale, width * .85 * scale), random.choice([(61, 94, 59), (78, 112, 65), (94, 123, 72)]), 1284, shape=0, collide=False)
+        leaves.find("Properties/bool[@name='CastShadow']").text = 'true'
 
 for x in range(-65, 355, 22):
     tree(x, -48, random.uniform(.8, 1.3))
@@ -99,12 +105,16 @@ for index in range(8):
         x, y, z = pos
         if angle: x, z = -x, -z
         return part(house, name, (x + x0, y, z + z0), size, color, material, rotation=kw.pop('rotation', 0) + angle, **kw)
-    cream, wood, dirt = (228, 219, 200), (122, 87, 62), (140, 130, 112)
+    cream = [(220, 213, 194), (202, 211, 196), (218, 205, 187), (202, 207, 208)][index % 4]
+    wood, dirt = (122, 87, 62), (140, 130, 112)
     hp('Fundação', (0, .5, 0), (36, 1.8, 30), (115, 112, 103), 800)
     hp('Piso', (0, 1.5, 0), (34, .4, 28), wood, 528)
     hp('Varanda', (0, .9, 18), (37, .8, 7), (177, 159, 135), 528)
     for z, y in [(22.5, .45), (24, .1)]: hp('Degrau', (0, y, z), (9, .7, 2), cream, 816)
     hp('Caminho', (0, -.1, 29), (8, .2, 10), (174, 170, 156), 880)
+    for z in (25, 27, 29, 31, 33):
+        hp('Junta do caminho', (0, .015, z), (8, .025, .06), (122, 119, 108), collide=False)
+    for x in (-19, 19): hp('Faixa de cascalho', (x, -.07, 0), (2, .2, 31), (144, 137, 119), 864)
     # Real window openings: low wall strips, jambs and headers are separate geometry.
     wall_height = 10.5
     window_bottom, window_top = 4.9, 10.1
@@ -155,8 +165,25 @@ for index in range(8):
         for level in range(13):
             part(roof, 'Fechamento do sótão', (x0, 12.4 + level * .6, z0 + z), (34 - level * 2.7, .61, .65), cream, 512)
     hp('Chaminé', (11, 18, -5), (3, 8, 3), (143, 103, 89), 848)
+    hp('Chapéu da chaminé', (11, 22.2, -5), (3.8, .35, 3.8), (105, 103, 97), 816)
+    for x in (-18, 18):
+        hp('Condutor pluvial', (x, 6.1, 14.5), (10.8, .24, .24), (114, 114, 104), 1088, shape=2, roll=90)
+        hp('Saída do condutor', (x, .8, 14.9), (.24, .24, 1), (114, 114, 104), 1088)
     for x in (-16, 16): hp('Coluna varanda', (x, 6.5, 20.5), (.6, 11, .6), cream, 512)
     hp('Cobertura varanda', (0, 12, 18), (39, .6, 9), (102, 75, 61), 848)
+    for x in (-10.5, 10.5):
+        for y in (1.9, 3.8): hp('Corrimão varanda', (x, y, 21), (10.7, .18, .22), cream, 512)
+        for dx in (-4, -2, 0, 2, 4): hp('Balaústre', (x+dx, 2.8, 21), (.14, 1.8, .14), cream, 512)
+    for x in (-5.3, 5.3):
+        hp('Arandela suporte', (x, 7.6, 14.8), (.8, 1.5, .3), (66, 70, 65), 1088)
+        lantern = hp('Vidro da arandela', (x, 7.6, 15.1), (.5, .9, .4), (245, 220, 176), 1568, transparent=.2, collide=False)
+        _, lp = item('PointLight', 'Luz da varanda', lantern)
+        prop(lp, 'float', 'Brightness', .8)
+        prop(lp, 'float', 'Range', 11)
+        light_color(lp)
+    # Timber detail in the gable is attached to the roof, so camera hiding includes it.
+    for z in (-14.5, 14.5):
+        for i in range(5): part(roof, 'Veneziana do sótão', (x0, 14.3+i*.25, z0+z), (2.4, .12, .14), (100, 94, 82), 512, collide=False)
     hp('Divisória cozinha', (6, 5.4, -7), (.5, 7.5, 13), cream)
     hp('Bancada', (11, 3.1, -11), (8, 3, 4), (146, 157, 141), 512)
     hp('Tampo', (11, 4.7, -11), (8.2, .3, 4.2), cream, 816)
@@ -174,6 +201,7 @@ for index in range(8):
     _, lp = item('PointLight', 'Luz ambiente interior', lamp)
     prop(lp, 'float', 'Brightness', .6)
     prop(lp, 'float', 'Range', 18)
+    light_color(lp, (255, 228, 189))
     fabric = 1312
     hp('Sofá abandonado', (-10, 2.7, -7), (8, 2, 3.4), (115, 80, 75), fabric)
     hp('Encosto do sofá', (-10, 4.1, -8.4), (8, 2.2, .7), (115, 80, 75), fabric)
@@ -256,6 +284,7 @@ for x in (-23, 0, 23):
     _, lp = item('PointLight', 'Luz interior', lamp)
     prop(lp, 'float', 'Brightness', 1.2)
     prop(lp, 'float', 'Range', 24)
+    light_color(lp, (255, 235, 206))
 # Parking bay and a stationary delivery van.
 sp('Estacionamento', (0, -.05, -32), (56, .3, 18), (91, 94, 91), 1376)
 for x in (-20, -7, 7, 20): sp('Faixa estacionamento', (x, .13, -32), (.2, .05, 15), (228, 223, 204))

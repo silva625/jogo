@@ -15,9 +15,11 @@
       "Neighborhood": {"$path": "src/map/Neighborhood.rbxmx"}
     },
     "Lighting": {
-      "$properties": {"LightingStyle": "Realistic", "PrioritizeLightingQuality": true, "ClockTime": 15.8, "Brightness": 2.2, "GlobalShadows": true, "ShadowSoftness": 0.35, "EnvironmentDiffuseScale": 0.65, "EnvironmentSpecularScale": 0.8, "Ambient": [0.22, 0.23, 0.24], "OutdoorAmbient": [0.42, 0.44, 0.47]},
-      "Atmosfera": {"$className": "Atmosphere", "$properties": {"Density": 0.18, "Offset": 0.1, "Color": [0.85, 0.88, 0.9], "Decay": [0.7, 0.73, 0.76]}},
-      "Cor": {"$className": "ColorCorrectionEffect", "$properties": {"Brightness": 0.01, "Contrast": 0.08, "Saturation": -0.03, "TintColor": [1, 0.98, 0.94]}}
+      "$properties": {"LightingStyle": "Realistic", "PrioritizeLightingQuality": true, "ClockTime": 17.25, "GeographicLatitude": 25, "Brightness": 2.3, "GlobalShadows": true, "ShadowSoftness": 0.5, "EnvironmentDiffuseScale": 0.7, "EnvironmentSpecularScale": 0.85, "ExposureCompensation": 0.05, "Ambient": [0.23, 0.22, 0.21], "OutdoorAmbient": [0.4, 0.42, 0.47], "ColorShift_Top": [0.08, 0.04, 0.01], "ColorShift_Bottom": [0, 0, 0]},
+      "Atmosfera": {"$className": "Atmosphere", "$properties": {"Density": 0.24, "Offset": 0.08, "Haze": 1.1, "Glare": 0.12, "Color": [0.92, 0.87, 0.79], "Decay": [0.47, 0.5, 0.56]}},
+      "Cor": {"$className": "ColorCorrectionEffect", "$properties": {"Brightness": 0.01, "Contrast": 0.1, "Saturation": -0.06, "TintColor": [1, 0.97, 0.92]}},
+      "RaiosDeSol": {"$className": "SunRaysEffect", "$properties": {"Intensity": 0.035, "Spread": 0.85}},
+      "BrilhoSuave": {"$className": "BloomEffect", "$properties": {"Intensity": 0.08, "Size": 16, "Threshold": 1.8}}
     }
   }
 }
