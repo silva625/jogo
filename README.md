@@ -15,15 +15,17 @@ Jogo de reforma em um bairro residencial: limpar, pintar e escolher móveis para
 
 ## Personagem trabalhando
 
-O personagem segura uma vassoura durante a limpeza, um rolo ao pintar e uma caixa ao decorar. Os gestos são **procedurais**, feitos com articulações Motor6D e TweenService no servidor, para outros jogadores também verem. Há suporte por nome de articulação para R15 e R6, sem IDs de animação externos.
+O personagem segura uma vassoura durante a limpeza, um rolo ao pintar e uma caixa ao decorar. Os gestos são **procedurais**. O servidor replica apenas o estado da ação e suas ferramentas; cada cliente calcula as poses a cada quadro, inclusive para os outros jogadores, com entrada e saída graduais. Há suporte por nome de articulação para R15 e R6, sem IDs de animação externos.
 
-A interação reduz temporariamente a velocidade e orienta o personagem para o serviço. Soltar o botão, afastar-se, morrer ou trocar de personagem interrompe os gestos, remove a ferramenta e restaura as articulações, a velocidade e a rotação automática. O servidor valida dono, proximidade, etapa e duração antes de recompensar.
+A interação preserva a velocidade e a direção de movimento. A pose é aplicada depois do Animator e restaurada antes do quadro seguinte, evitando acumular deslocamentos nas articulações. Soltar o botão, afastar-se, morrer ou trocar de personagem interrompe o trabalho. O servidor valida dono, proximidade, etapa e duração antes de recompensar.
 
 Os gestos ainda precisam de ajuste visual no Studio, principalmente em avatares com proporções diferentes. Não são animações capturadas ou assets publicados no Animation Editor.
 
 ## Cenário
 
 O bairro tem oito casas com telhados inclinados, sótãos fechados, calhas, varandas, chaminés, janelas com aberturas reais, caixas de correio, lixeiras e jardins. Há rua, calçadas, praça, árvores e colinas sobre terreno contínuo.
+
+O projeto usa materiais nativos de 2022 e `LightingStyle = Realistic`, com iluminação de fim de tarde, reflexos de ambiente e sombras suaves. No Play, o terreno plano e as colinas são substituídos por Terrain nativo com grama. As casas têm juntas nas telhas, rodapés, cortinas e armários com puxadores, pia e torneira. A qualidade final também depende do nível gráfico do cliente Roblox.
 
 A **Casa & Cia** tem fachada, vitrines, entrada aberta, balcão, caixa registradora, prateleiras, latas de tinta, móveis expostos, iluminação interna, estacionamento e furgão parado. O telhado fica invisível localmente ao entrar em uma casa ou na loja para facilitar a câmera.
 
@@ -45,11 +47,13 @@ done
 
 Rojo 7.6.1 e Luau 0.699 ficam em `/workspace/tools`. O script reutilizável é `/workspace/setup-jogo.sh`, também salvo na configuração do ambiente. Não são necessários pacotes npm, credenciais, serviços externos ou banco de dados.
 
-O cenário é gerado por `scripts/build_map.py` em `src/map/Neighborhood.rbxmx`. Só execute o gerador quando quiser substituir a geometria gerada; preserve eventuais edições manuais no mapa. O módulo `Mission` controla as etapas, `Decorations` controla compras e inventário, `ShopRules` define a área de compra, `WorkRules` define as durações e `WorkAnimation` gera ferramentas e movimentos.
+O cenário é gerado por `scripts/build_map.py` em `src/map/Neighborhood.rbxmx`. Só execute o gerador quando quiser substituir a geometria gerada; preserve eventuais edições manuais no mapa. O módulo `Mission` controla as etapas, `Decorations` controla compras e inventário, `ShopRules` define a área de compra, `WorkRules` define as durações, `WorkAnimation` gera ferramentas e estado, e `WorkMotion` calcula poses suaves no cliente. `Landscape.server.luau` prepara o Terrain na inicialização, sem atualizar o terreno a cada quadro.
+
+As prévias da loja ficam em cache: ganhar moedas não recria os modelos 3D, e a loja fechada não reconstrói seu catálogo durante as tarefas.
 
 ## Validação e limites
 
-Verificados na nuvem: sintaxe Luau, regras das missões, dinheiro e inventário, trocas, compras dentro/fora da área da loja, duração das interações, estrutura e geração do lugar. Os testes da loja verificam a geometria de acesso e as regras de área; o runtime Roblox não foi executado aqui.
+Verificados na nuvem: sintaxe Luau, regras das missões, dinheiro e inventário, trocas, área da loja, duração das interações, continuidade das poses, equivalência matemática da suavização em 30/144 FPS, retorno da pose no cancelamento, estrutura e geração do lugar. O teste de FPS verifica os cálculos, não mede desempenho real. O runtime Roblox não foi executado aqui.
 
 Pendente no Studio: Play, limpar/pintar/decorar, conferir gestos e ferramentas em R15/R6, cancelar no meio, afastar-se, morrer/resetar durante a ação, verificar outro jogador vendo a animação; caminhar até a loja, entrar, abrir o catálogo pelo balcão, comprar e recusar compra fora da loja, testar mochila, troca de cores, câmera e Device Emulator.
 

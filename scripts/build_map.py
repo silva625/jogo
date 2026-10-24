@@ -28,6 +28,8 @@ def part(parent, name, pos, size, color, material=256, rotation=0, shape=1, tran
     node, props = item('Part', name, parent)
     prop(props, 'bool', 'Anchored', 'true')
     prop(props, 'bool', 'CanCollide', str(collide).lower())
+    prop(props, 'bool', 'CanTouch', 'false')
+    prop(props, 'bool', 'CastShadow', str(collide and transparent < .5).lower())
     prop(props, 'float', 'Transparency', transparent)
     prop(props, 'token', 'Material', material)
     prop(props, 'token', 'shape', shape)
@@ -77,9 +79,11 @@ for x in range(-65, 350, 45):
         prop(p, 'float', 'Range', 23)
 
 def tree(x, z, scale=1):
-    part(land, 'Tronco', (x, 4 * scale, z), (1.7 * scale, 8 * scale, 1.7 * scale), (107, 79, 54), 512)
-    for dx, dy, dz, width in [(0, 11, 0, 10), (-3, 9, 1, 8), (3, 9, -1, 8)]:
-        part(land, 'Copa', (x + dx * scale, dy * scale, z + dz * scale), (width * scale, width * scale, width * scale), random.choice([(67, 112, 72), (88, 133, 76), (113, 148, 82)]), 1280, shape=0)
+    part(land, 'Tronco', (x, 4 * scale, z), (8 * scale, 1.4 * scale, 1.4 * scale), (107, 79, 54), 512, shape=2, roll=90)
+    for side in (-1, 1):
+        part(land, 'Galho', (x + side * 1.2 * scale, 7 * scale, z), (4 * scale, .5 * scale, .5 * scale), (107, 79, 54), 512, shape=2, roll=side*48)
+    for dx, dy, dz, width in [(0, 12, 0, 7), (-3, 9, 1, 6), (3, 9, -1, 5), (-1, 10, -3, 6), (1, 9, 3, 5), (0, 8, 0, 6)]:
+        part(land, 'Copa', (x + dx * scale, dy * scale, z + dz * scale), (width * scale, width * .65 * scale, width * .85 * scale), random.choice([(61, 94, 59), (78, 112, 65), (94, 123, 72)]), 1284, shape=0, collide=False)
 
 for x in range(-65, 355, 22):
     tree(x, -48, random.uniform(.8, 1.3))
@@ -141,7 +145,10 @@ for index in range(8):
         for dx in (-2, -1, 0, 1, 2): hp('Flores', (x + dx, 5, 15), (.65, .7, .65), (202, 120, 171), shape=0, collide=False)
     roof, _ = item('Folder', 'Telhado', house)
     for side in (-1, 1):
-        part(roof, 'Telhas', (x0 + side * 9.1, 15.8, z0), (20.3, .65, 33), (102, 75, 61), 848, roll=-side*24)
+        part(roof, 'Telhas', (x0 + side * 9.1, 15.8, z0), (20.3, .65, 33), (92, 82, 73), 800, roll=-side*24)
+        for row in range(1, 9):
+            x = side * row * 2.05
+            part(roof, 'Junta das telhas', (x0+x, 20.25-abs(x)*math.tan(math.radians(24)), z0), (.07, .06, 33), (68, 61, 55), 800, collide=False)
     part(roof, 'Cumeeira', (x0, 20, z0), (.9, .7, 33.5), (112, 80, 63), 848)
     for side in (-1, 1): part(roof, 'Calha', (x0+side*18.5, 11.8, z0), (.4, .4, 33.5), (92, 94, 91), 1088)
     for z in (-14, 14):
@@ -153,6 +160,20 @@ for index in range(8):
     hp('Divisória cozinha', (6, 5.4, -7), (.5, 7.5, 13), cream)
     hp('Bancada', (11, 3.1, -11), (8, 3, 4), (146, 157, 141), 512)
     hp('Tampo', (11, 4.7, -11), (8.2, .3, 4.2), cream, 816)
+    for x in (8.3, 11, 13.7):
+        hp('Porta do armário', (x, 3.1, -8.95), (2.5, 2.6, .15), (157, 166, 149), 512)
+        hp('Puxador', (x+.7, 3.5, -8.8), (.12, .5, .12), (115, 114, 103), 1088)
+    hp('Cuba da pia', (11, 4.87, -11), (2.4, .12, 1.7), (111, 119, 120), 1088)
+    hp('Torneira', (11, 5.3, -11.9), (.14, .8, .14), (148, 153, 152), 1088)
+    for x in (-15, 15):
+        hp('Rodapé lateral', (x*1.12, 1.95, 0), (.2, .5, 27), cream, 512)
+    hp('Rodapé traseiro', (0, 1.95, -13.6), (34, .5, .2), cream, 512)
+    for x in (-11, 11):
+        for dx in (-2.2, 2.2): hp('Cortina', (x+dx, 7.4, 13.8), (.8, 5, .18), (195, 187, 170), 1312, collide=False)
+    lamp = hp('Luz da sala', (-6, 11.5, 0), (2, .2, 2), (232, 223, 201))
+    _, lp = item('PointLight', 'Luz ambiente interior', lamp)
+    prop(lp, 'float', 'Brightness', .6)
+    prop(lp, 'float', 'Range', 18)
     fabric = 1312
     hp('Sofá abandonado', (-10, 2.7, -7), (8, 2, 3.4), (115, 80, 75), fabric)
     hp('Encosto do sofá', (-10, 4.1, -8.4), (8, 2.2, .7), (115, 80, 75), fabric)

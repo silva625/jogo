@@ -91,7 +91,9 @@ local function preview(parent, id)
 	local distance = math.max(size.X, size.Y, size.Z) * 2
 	camera.CFrame = CFrame.lookAt(cf.Position + Vector3.new(distance * .7, distance * .45, distance), cf.Position)
 	viewport.CurrentCamera = camera
+	return viewport
 end
+local cardCache = {}
 render = function()
 	local inside = atStore()
 	balance.Text = "$ " .. (player:GetAttribute("Cash") or 250)
@@ -100,29 +102,43 @@ render = function()
 	mode.Text = ownedOnly and "Ver: minha mochila" or "Ver: catálogo"
 	for name, b in filters do b.BackgroundColor3 = name == category and Color3.fromRGB(137, 61, 124) or Color3.fromRGB(51, 44, 65) end
 	for id, b in colorButtons do b.Text = (id == colorId and "✓ " or "") .. Catalog.color(id).name end
-	for _, child in list:GetChildren() do if child:IsA("Frame") then child:Destroy() end end
 	local visible = 0
 	for index, item in Catalog.items do
 		local count = snapshot.inventory[item.id] or 0
 		local placed = 0
 		for _, slot in snapshot.slots do if slot.id == item.id then placed += 1 end end
-		if category ~= "Todos" and category ~= item.category then continue end
-		if ownedOnly and count == 0 and placed == 0 then continue end
+		local show = (category == "Todos" or category == item.category) and (not ownedOnly or count > 0 or placed > 0)
+		local cached = cardCache[item.id]
+		if not show then
+			if cached then cached.frame.Visible = false end
+			continue
+		end
 		visible += 1
-		local card = Instance.new("Frame", list)
-		card.LayoutOrder, card.BackgroundColor3 = index, Color3.fromRGB(30, 33, 46)
-		Instance.new("UICorner", card).CornerRadius = UDim.new(0, 12)
-		preview(card, item.id)
-		text(card, item.name, 104, 8, 208, 31, 14)
-		text(card, item.category .. " · $ " .. item.price, 104, 39, 208, 20, 13, pink)
-		text(card, "Mochila: " .. count .. " · Na casa: " .. placed, 104, 62, 208, 20, 12)
-		local buy = button(card, inside and "Comprar" or "Ir à loja", 104, 89, 96, 28, function()
-			if atStore() then remote:FireServer("Buy", item.id)
-			else feedback.Text = "Siga a rua até a Casa & Cia. Entre pela vitrine e vá ao balcão para comprar." end
-		end)
-		buy.BackgroundColor3 = inside and (player:GetAttribute("Cash") or 0) >= item.price and Color3.fromRGB(49, 104, 86) or Color3.fromRGB(63, 62, 69)
-		local selectButton = button(card, "Escolher", 208, 89, 103, 28, function() remote:FireServer("Select", item.id, colorId) end)
-		selectButton.BackgroundColor3 = snapshot.selected == item.id and Color3.fromRGB(137, 61, 124) or Color3.fromRGB(51, 44, 65)
+		if not cached then
+			local card = Instance.new("Frame", list)
+			card.LayoutOrder, card.BackgroundColor3 = index, Color3.fromRGB(30, 33, 46)
+			Instance.new("UICorner", card).CornerRadius = UDim.new(0, 12)
+			text(card, item.name, 104, 8, 208, 31, 14)
+			text(card, item.category .. " · $ " .. item.price, 104, 39, 208, 20, 13, pink)
+			local units = text(card, "", 104, 62, 208, 20, 12)
+			local buy = button(card, "", 104, 89, 96, 28, function()
+				if atStore() then remote:FireServer("Buy", item.id)
+				else feedback.Text = "Siga a rua até a Casa & Cia. Entre pela vitrine e vá ao balcão para comprar." end
+			end)
+			local selectButton = button(card, "Escolher", 208, 89, 103, 28, function() remote:FireServer("Select", item.id, colorId) end)
+			cached = { frame = card, units = units, buy = buy, selectButton = selectButton }
+			cardCache[item.id] = cached
+		end
+		cached.frame.Visible = true
+		cached.units.Text = "Mochila: " .. count .. " · Na casa: " .. placed
+		cached.buy.Text = inside and "Comprar" or "Ir à loja"
+		cached.buy.BackgroundColor3 = inside and (player:GetAttribute("Cash") or 0) >= item.price and Color3.fromRGB(49, 104, 86) or Color3.fromRGB(63, 62, 69)
+		cached.selectButton.BackgroundColor3 = snapshot.selected == item.id and Color3.fromRGB(137, 61, 124) or Color3.fromRGB(51, 44, 65)
+		if cached.color ~= colorId then
+			if cached.viewport then cached.viewport:Destroy() end
+			cached.viewport = preview(cached.frame, item.id)
+			cached.color = colorId
+		end
 	end
 	footer.Text = visible == 0 and "Nenhum item neste filtro. Abra o catálogo ou escolha outra categoria." or "3 plantas de presente! Após limpar e pintar, segure E nos pontos rosa.\nTrocas devolvem o móvel anterior à mochila. Itens e moedas duram esta sessão."
 end
@@ -152,7 +168,7 @@ remote.OnClientEvent:Connect(function(action)
 	end
 end)
 update.OnClientEvent:Connect(function(message, decor)
-	if decor then snapshot = decor; render() end
+	if decor then snapshot = decor; if window.Visible then render() end end
 	if message and message ~= "" then feedback.Text = message end
 end)
 player:GetAttributeChangedSignal("Cash"):Connect(function() if window.Visible then render() end end)
@@ -163,7 +179,6 @@ local function resize()
 end
 if workspace.CurrentCamera then workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize) end
 resize()
-render()
 remote:FireServer("Sync")
 local lastInside = atStore()
 task.spawn(function()
