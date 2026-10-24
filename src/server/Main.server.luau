@@ -70,7 +70,8 @@ local function createHouse(player)
 	model.Name = "Casa de " .. player.Name
 	local state = Mission.new()
 	local marker = model:FindFirstChild("SpawnMarker")
-	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
+	player.RespawnLocation = marker
+	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position + Vector3.new(0, 4, 0), busy = false }
 	sessions[player] = session
 	local walls = {}
 	for i = 1, 4 do walls[i] = model:FindFirstChild("Paint" .. i) end
@@ -178,7 +179,9 @@ local function createHouse(player)
 	local function spawnCharacter(character)
 		local root = character:WaitForChild("HumanoidRootPart", 10)
 		if root and sessions[player] == session then
-			character:PivotTo(CFrame.lookAt(session.spawn, model.Piso.Position + Vector3.new(0, 3, 0)))
+			local entrance = Vector3.new(model.Piso.Position.X, session.spawn.Y, model.Piso.Position.Z)
+			root.CFrame = CFrame.lookAt(session.spawn, entrance)
+			root.AssemblyLinearVelocity, root.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
 		end
 	end
 	player.CharacterRemoving:Connect(stopWork)
@@ -191,6 +194,7 @@ Players.PlayerRemoving:Connect(function(player)
 	local session = sessions[player]
 	if session then
 		if session.work then session.work.animation.stop() end
+		player.RespawnLocation = nil
 		session.house:Destroy()
 		local replacement = originals[session.slot]:Clone()
 		replacement.Parent = lots

@@ -15,7 +15,16 @@ for house in houses.findall('Item'):
     for required in ['Piso', 'SpawnMarker', 'Telhado'] + [f'Trash{i}' for i in range(1, 9)] + [f'Paint{i}' for i in range(1, 5)] + [f'Decor{i}' for i in range(1, 4)]:
         assert required in children, (name(house), required)
     marker = children['SpawnMarker']
+    assert marker.attrib['class'] == 'SpawnLocation'
+    assert marker.findtext("Properties/bool[@name='Enabled']") == 'true'
     assert marker.findtext("Properties/bool[@name='CanCollide']") == 'false'
+    spawn_cf = marker.find("Properties/CoordinateFrame[@name='CFrame']")
+    floor_cf = children['Piso'].find("Properties/CoordinateFrame[@name='CFrame']")
+    sx, sy, sz = (float(spawn_cf.findtext(axis)) for axis in 'XYZ')
+    fx, fz = (float(floor_cf.findtext(axis)) for axis in 'XZ')
+    assert sx == fx and sy < 1
+    assert 41 < sz < 63, 'Spawn must be on the street, beyond the roofs and porches'
+    assert (sz - fz) * float(spawn_cf.findtext('R22')) > 0, 'Spawn faces its assigned house'
     slopes = [p for p in children['Telhado'].findall('Item') if name(p) == 'Telhas']
     assert len(slopes) == 2
     assert all(abs(float(p.findtext("Properties/CoordinateFrame/R10"))) > .1 for p in slopes)

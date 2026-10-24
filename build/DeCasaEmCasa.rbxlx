@@ -453,7 +453,8 @@ local function createHouse(player)
 	model.Name = "Casa de " .. player.Name
 	local state = Mission.new()
 	local marker = model:FindFirstChild("SpawnMarker")
-	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position, busy = false }
+	player.RespawnLocation = marker
+	local session = { state = state, decor = Decorations.new(), house = model, slot = slot, spawn = marker.Position + Vector3.new(0, 4, 0), busy = false }
 	sessions[player] = session
 	local walls = {}
 	for i = 1, 4 do walls[i] = model:FindFirstChild("Paint" .. i) end
@@ -561,7 +562,9 @@ local function createHouse(player)
 	local function spawnCharacter(character)
 		local root = character:WaitForChild("HumanoidRootPart", 10)
 		if root and sessions[player] == session then
-			character:PivotTo(CFrame.lookAt(session.spawn, model.Piso.Position + Vector3.new(0, 3, 0)))
+			local entrance = Vector3.new(model.Piso.Position.X, session.spawn.Y, model.Piso.Position.Z)
+			root.CFrame = CFrame.lookAt(session.spawn, entrance)
+			root.AssemblyLinearVelocity, root.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
 		end
 	end
 	player.CharacterRemoving:Connect(stopWork)
@@ -574,6 +577,7 @@ Players.PlayerRemoving:Connect(function(player)
 	local session = sessions[player]
 	if session then
 		if session.work then session.work.animation.stop() end
+		player.RespawnLocation = nil
 		session.house:Destroy()
 		local replacement = originals[session.slot]:Clone()
 		replacement.Parent = lots
@@ -28466,15 +28470,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="854">
+          <Item class="SpawnLocation" referent="854">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>0</X>
-                <Y>4</Y>
-                <Z>28</Z>
+                <Y>0.2</Y>
+                <Z>44</Z>
                 <R00>1</R00>
                 <R01>-0</R01>
                 <R02>0</R02>
@@ -28489,12 +28494,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -37577,15 +37585,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="1129">
+          <Item class="SpawnLocation" referent="1129">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>85</X>
-                <Y>4</Y>
-                <Z>28</Z>
+                <Y>0.2</Y>
+                <Z>44</Z>
                 <R00>1</R00>
                 <R01>-0</R01>
                 <R02>0</R02>
@@ -37600,12 +37609,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -46688,15 +46700,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="1404">
+          <Item class="SpawnLocation" referent="1404">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>170</X>
-                <Y>4</Y>
-                <Z>28</Z>
+                <Y>0.2</Y>
+                <Z>44</Z>
                 <R00>1</R00>
                 <R01>-0</R01>
                 <R02>0</R02>
@@ -46711,12 +46724,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -55799,15 +55815,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="1679">
+          <Item class="SpawnLocation" referent="1679">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>255</X>
-                <Y>4</Y>
-                <Z>28</Z>
+                <Y>0.2</Y>
+                <Z>44</Z>
                 <R00>1</R00>
                 <R01>-0</R01>
                 <R02>0</R02>
@@ -55822,12 +55839,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -64910,15 +64930,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="1954">
+          <Item class="SpawnLocation" referent="1954">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>0</X>
-                <Y>4</Y>
-                <Z>76</Z>
+                <Y>0.2</Y>
+                <Z>60</Z>
                 <R00>-1</R00>
                 <R01>0</R01>
                 <R02>0.00000000000000012246469</R02>
@@ -64933,12 +64954,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -74021,15 +74045,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="2229">
+          <Item class="SpawnLocation" referent="2229">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>85</X>
-                <Y>4</Y>
-                <Z>76</Z>
+                <Y>0.2</Y>
+                <Z>60</Z>
                 <R00>-1</R00>
                 <R01>0</R01>
                 <R02>0.00000000000000012246469</R02>
@@ -74044,12 +74069,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -83132,15 +83160,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="2504">
+          <Item class="SpawnLocation" referent="2504">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>170</X>
-                <Y>4</Y>
-                <Z>76</Z>
+                <Y>0.2</Y>
+                <Z>60</Z>
                 <R00>-1</R00>
                 <R01>0</R01>
                 <R02>0.00000000000000012246469</R02>
@@ -83155,12 +83184,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>
@@ -92243,15 +92275,16 @@ end)
               <float name="Transparency">0</float>
             </Properties>
           </Item>
-          <Item class="Part" referent="2779">
+          <Item class="SpawnLocation" referent="2779">
             <Properties>
               <string name="Name">SpawnMarker</string>
+              <bool name="AllowTeamChangeOnTouch">false</bool>
               <bool name="Anchored">true</bool>
               <token name="BottomSurface">0</token>
               <CoordinateFrame name="CFrame">
                 <X>255</X>
-                <Y>4</Y>
-                <Z>76</Z>
+                <Y>0.2</Y>
+                <Z>60</Z>
                 <R00>-1</R00>
                 <R01>0</R01>
                 <R02>0.00000000000000012246469</R02>
@@ -92266,12 +92299,15 @@ end)
               <bool name="CanTouch">false</bool>
               <bool name="CastShadow">false</bool>
               <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+              <float name="Duration">0</float>
+              <bool name="Enabled">true</bool>
               <token name="Material">256</token>
+              <bool name="Neutral">true</bool>
               <token name="shape">1</token>
               <Vector3 name="size">
-                <X>1</X>
-                <Y>1</Y>
-                <Z>1</Z>
+                <X>6</X>
+                <Y>0.2</Y>
+                <Z>6</Z>
               </Vector3>
               <token name="TopSurface">0</token>
               <float name="Transparency">1</float>

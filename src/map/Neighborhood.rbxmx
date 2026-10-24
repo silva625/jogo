@@ -30490,7 +30490,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map811">
+        <Item class="SpawnLocation" referent="map811">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -30503,9 +30503,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -30514,8 +30514,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>0</X>
-              <Y>4</Y>
-              <Z>28</Z>
+              <Y>0.2</Y>
+              <Z>44</Z>
               <R00>1.0</R00>
               <R01>-0.0</R01>
               <R02>0.0</R02>
@@ -30526,6 +30526,10 @@
               <R21>0.0</R21>
               <R22>1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map812">
@@ -40664,7 +40668,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map1086">
+        <Item class="SpawnLocation" referent="map1086">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -40677,9 +40681,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -40688,8 +40692,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>85</X>
-              <Y>4</Y>
-              <Z>28</Z>
+              <Y>0.2</Y>
+              <Z>44</Z>
               <R00>1.0</R00>
               <R01>-0.0</R01>
               <R02>0.0</R02>
@@ -40700,6 +40704,10 @@
               <R21>0.0</R21>
               <R22>1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map1087">
@@ -50838,7 +50846,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map1361">
+        <Item class="SpawnLocation" referent="map1361">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -50851,9 +50859,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -50862,8 +50870,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>170</X>
-              <Y>4</Y>
-              <Z>28</Z>
+              <Y>0.2</Y>
+              <Z>44</Z>
               <R00>1.0</R00>
               <R01>-0.0</R01>
               <R02>0.0</R02>
@@ -50874,6 +50882,10 @@
               <R21>0.0</R21>
               <R22>1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map1362">
@@ -61012,7 +61024,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map1636">
+        <Item class="SpawnLocation" referent="map1636">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -61025,9 +61037,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -61036,8 +61048,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>255</X>
-              <Y>4</Y>
-              <Z>28</Z>
+              <Y>0.2</Y>
+              <Z>44</Z>
               <R00>1.0</R00>
               <R01>-0.0</R01>
               <R02>0.0</R02>
@@ -61048,6 +61060,10 @@
               <R21>0.0</R21>
               <R22>1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map1637">
@@ -71186,7 +71202,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map1911">
+        <Item class="SpawnLocation" referent="map1911">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -71199,9 +71215,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -71210,8 +71226,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>0</X>
-              <Y>4</Y>
-              <Z>76</Z>
+              <Y>0.2</Y>
+              <Z>60</Z>
               <R00>-1.0</R00>
               <R01>0.0</R01>
               <R02>1.2246467991473532e-16</R02>
@@ -71222,6 +71238,10 @@
               <R21>0.0</R21>
               <R22>-1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map1912">
@@ -81360,7 +81380,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map2186">
+        <Item class="SpawnLocation" referent="map2186">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -81373,9 +81393,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -81384,8 +81404,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>85</X>
-              <Y>4</Y>
-              <Z>76</Z>
+              <Y>0.2</Y>
+              <Z>60</Z>
               <R00>-1.0</R00>
               <R01>0.0</R01>
               <R02>1.2246467991473532e-16</R02>
@@ -81396,6 +81416,10 @@
               <R21>0.0</R21>
               <R22>-1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map2187">
@@ -91534,7 +91558,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map2461">
+        <Item class="SpawnLocation" referent="map2461">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -91547,9 +91571,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -91558,8 +91582,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>170</X>
-              <Y>4</Y>
-              <Z>76</Z>
+              <Y>0.2</Y>
+              <Z>60</Z>
               <R00>-1.0</R00>
               <R01>0.0</R01>
               <R02>1.2246467991473532e-16</R02>
@@ -91570,6 +91594,10 @@
               <R21>0.0</R21>
               <R22>-1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map2462">
@@ -101708,7 +101736,7 @@
             </CoordinateFrame>
           </Properties>
         </Item>
-        <Item class="Part" referent="map2736">
+        <Item class="SpawnLocation" referent="map2736">
           <Properties>
             <string name="Name">SpawnMarker</string>
             <bool name="Anchored">true</bool>
@@ -101721,9 +101749,9 @@
             <token name="TopSurface">0</token>
             <token name="BottomSurface">0</token>
             <Vector3 name="size">
-              <X>1</X>
-              <Y>1</Y>
-              <Z>1</Z>
+              <X>6</X>
+              <Y>0.2</Y>
+              <Z>6</Z>
             </Vector3>
             <Color3 name="Color">
               <R>1.0</R>
@@ -101732,8 +101760,8 @@
             </Color3>
             <CoordinateFrame name="CFrame">
               <X>255</X>
-              <Y>4</Y>
-              <Z>76</Z>
+              <Y>0.2</Y>
+              <Z>60</Z>
               <R00>-1.0</R00>
               <R01>0.0</R01>
               <R02>1.2246467991473532e-16</R02>
@@ -101744,6 +101772,10 @@
               <R21>0.0</R21>
               <R22>-1.0</R22>
             </CoordinateFrame>
+            <bool name="Enabled">true</bool>
+            <bool name="Neutral">true</bool>
+            <bool name="AllowTeamChangeOnTouch">false</bool>
+            <float name="Duration">0</float>
           </Properties>
         </Item>
         <Item class="Part" referent="map2737">

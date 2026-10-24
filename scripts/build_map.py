@@ -28,8 +28,8 @@ def light_color(props, rgb=(255, 220, 174)):
     color = ET.SubElement(props, 'Color3', name='Color')
     for axis, value in zip('RGB', rgb): ET.SubElement(color, axis).text = str(value / 255)
 
-def part(parent, name, pos, size, color, material=256, rotation=0, shape=1, transparent=0, collide=True, roll=0):
-    node, props = item('Part', name, parent)
+def part(parent, name, pos, size, color, material=256, rotation=0, shape=1, transparent=0, collide=True, roll=0, kind='Part'):
+    node, props = item(kind, name, parent)
     prop(props, 'bool', 'Anchored', 'true')
     prop(props, 'bool', 'CanCollide', str(collide).lower())
     prop(props, 'bool', 'CanTouch', 'false')
@@ -220,7 +220,12 @@ for index in range(8):
     hp('Poste da caixa', (7, 1.5, 27), (.3, 3, .3), wood, 512)
     hp('Lixeira', (-24, 1.5, 25), (2.5, 3, 2.5), (67, 83, 72))
     hp('Tampa da lixeira', (-24, 3.1, 25), (2.7, .3, 2.7), (47, 61, 52))
-    hp('SpawnMarker', (0, 4, 28), (1, 1, 1), (255, 255, 255), transparent=1, collide=False)
+    spawn = hp('SpawnMarker', (0, .2, 44), (6, .2, 6), (255, 255, 255), transparent=1, collide=False, kind='SpawnLocation')
+    spawn_props = spawn.find('Properties')
+    prop(spawn_props, 'bool', 'Enabled', 'true')
+    prop(spawn_props, 'bool', 'Neutral', 'true')
+    prop(spawn_props, 'bool', 'AllowTeamChangeOnTouch', 'false')
+    prop(spawn_props, 'float', 'Duration', 0)
     # Low picket fences leave a wide opening onto the sidewalk.
     for x in (-29, 29):
         for z in range(-23, 29, 3): hp('Estaca', (x, 1.8, z), (.5, 4, .7), cream, 512)

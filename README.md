@@ -6,7 +6,7 @@ Jogo de reforma em um bairro residencial: limpar, pintar e escolher móveis para
 
 1. No GitHub, abra [`build/DeCasaEmCasa.rbxlx`](build/DeCasaEmCasa.rbxlx) e clique em **Download raw file**. Também é possível usar **Code → Download ZIP**.
 2. Abra o arquivo novo no Roblox Studio, em **File → Open from File**. O bairro e a loja já aparecem antes do Play.
-3. Clique em **Play**. Cada jogador recebe uma das oito casas.
+3. Clique em **Play**. Cada jogador recebe uma das oito casas e nasce na rua em frente a ela, olhando para a entrada. O reset usa o mesmo ponto de nascimento da casa.
 4. Aproxime-se do lixo e segure **E** por 1,8 segundo para varrer e recolher. Depois de retirar os oito lixos, pinte as quatro paredes, segurando **E** por 2,4 segundos em cada uma.
 5. Depois da pintura, use **B / Mochila**, escolha um item e sua cor, e segure **E** em um dos três pontos de decoração. Você começa com três plantas grátis.
 6. Para comprar, caminhe até a **Casa & Cia**, no fim da rua. Entre pela abertura entre as vitrines e interaja com o **balcão**. As compras só são aceitas dentro da loja. **L** permite consultar o catálogo de qualquer lugar; a mochila pode ser usada na casa.
