@@ -1,0 +1,14 @@
+{
+  "name": "De Casa em Casa",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {"Shared": {"$path": "src/shared"}},
+    "ServerScriptService": {"Game": {"$path": "src/server"}},
+    "StarterPlayer": {
+      "$properties": {"CameraMode": "Classic", "CameraMaxZoomDistance": 18},
+      "StarterPlayerScripts": {"Interface": {"$path": "src/client"}}
+    },
+    "Workspace": {"$properties": {"FilteringEnabled": true}},
+    "Lighting": {"$properties": {"ClockTime": 16, "Brightness": 2, "Ambient": [0.45, 0.42, 0.5]}}
+  }
+}
